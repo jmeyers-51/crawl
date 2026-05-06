@@ -268,7 +268,7 @@ const STOPS = [
     id:'01', cls:'stop-01',
     name:"Eben's Hearth",
     addr:'115 Maple St',
-    lat:44.6672, lng:-74.9889,
+    lat:44.6675, lng:-74.9871,
     start:[17,0], end:[19,30],
     deals:"$5 PBR liters · $2 Jim Beam Honey shots",
     note:"Opening rush — high energy, near campus",
@@ -278,7 +278,7 @@ const STOPS = [
     id:'02', cls:'stop-02',
     name:"Cactus Grill & Cantina",
     addr:'11 Raymond St',
-    lat:44.6714, lng:-74.9858,
+    lat:44.6725, lng:-74.9838,
     start:[19,30], end:[21,30],
     deals:"$1 off margaritas · $5 Coronas",
     note:"Mid-crawl peak — Raymond St transitions",
@@ -288,7 +288,7 @@ const STOPS = [
     id:'03', cls:'stop-03',
     name:"Maxfields",
     addr:'5–15 Market St',
-    lat:44.6705, lng:-74.9833,
+    lat:44.6704, lng:-74.9825,
     start:[21,30], end:[23,30],
     deals:"Kill-a-keg $4 · $5 pints",
     note:"Late hour + cheap beer — monitor riverside deck",
@@ -298,7 +298,7 @@ const STOPS = [
     id:'04', cls:'stop-04',
     name:"McDuff's Pub",
     addr:'59 Market St',
-    lat:44.6698, lng:-74.9826,
+    lat:44.6694, lng:-74.9820,
     start:[21,30], end:[23,30],
     deals:"Mug night $10/$3 refill · $4 beers · Free shirt first 25",
     note:"Concurrent with Maxfields — crowd surge at door",
@@ -308,7 +308,7 @@ const STOPS = [
     id:'05', cls:'stop-05',
     name:"The Circuit",
     addr:'6 Elm St (2nd floor)',
-    lat:44.6709, lng:-74.9820,
+    lat:44.6714, lng:-74.9815,
     start:[23,30], end:[26,0],
     deals:"Tipsy Turtle punch $4 · $3 drafts",
     note:"Dance club, most intoxicated — watch Elm St departures",
@@ -364,7 +364,31 @@ STOPS.forEach(s => {
 
 // ── MAP ──
 const map = L.map('map',{zoomControl:false,attributionControl:false})
-  .setView([44.6695,-74.9845],15);
+  .setView([44.6695,-74.9830],15);
+
+// Geocode all stops at runtime using Nominatim (no API key needed)
+async function geocodeAll() {
+  for (const s of STOPS) {
+    try {
+      const q = encodeURIComponent(s.addr + ', Potsdam, NY 13676, USA');
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=1&countrycodes=us`, {headers:{'Accept-Language':'en'}});
+      const data = await res.json();
+      if (data && data[0]) {
+        const lat = parseFloat(data[0].lat);
+        const lng = parseFloat(data[0].lon);
+        s.lat = lat; s.lng = lng;
+        if (markerMap[s.id]) {
+          markerMap[s.id].setLatLng([lat, lng]);
+        }
+      }
+    } catch(e) { /* keep fallback coords */ }
+    await new Promise(r => setTimeout(r, 1100)); // Nominatim rate limit: 1 req/sec
+  }
+  // Redraw route after geocoding
+  if (routeLine) map.removeLayer(routeLine);
+  routeLine = L.polyline(STOPS.map(s=>[s.lat,s.lng]),{color:'#4a5580',weight:2,dashArray:'5 5',opacity:.7}).addTo(map);
+  map.fitBounds(STOPS.map(s=>[s.lat,s.lng]), {padding:[40,40]});
+}
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
   subdomains:'abcd',maxZoom:19
 }).addTo(map);
@@ -386,16 +410,18 @@ STOPS.forEach(s => {
     .bindPopup(`<b>${s.id} · ${s.name}</b><br><span style="color:#93c5fd;font-size:11px;">${s.addr} · ${fmtHM(s.start)}–${fmtHM(s.end)}</span><br><span style="color:#9ca3af;font-size:11px;">${s.note}</span>`);
 });
 
-L.polyline(STOPS.map(s=>[s.lat,s.lng]),{color:'#4a5580',weight:2,dashArray:'5 5',opacity:.7}).addTo(map);
+let routeLine = L.polyline(STOPS.map(s=>[s.lat,s.lng]),{color:'#4a5580',weight:2,dashArray:'5 5',opacity:.7}).addTo(map);
 
 // Campus circle
-L.circle([44.6628,-74.9793],{radius:440,color:'#3b82f6',weight:1,fillColor:'#3b82f6',fillOpacity:.05,dashArray:'4 4'}).addTo(map);
+L.circle([44.6600,-74.9800],{radius:440,color:'#3b82f6',weight:1,fillColor:'#3b82f6',fillOpacity:.05,dashArray:'4 4'}).addTo(map);
 // EMS marker
-L.marker([44.6635,-74.9776],{icon:L.divIcon({html:'<div style="font-size:18px;line-height:1;">🚑</div>',className:'',iconSize:[22,22],iconAnchor:[11,11]})}).addTo(map)
+L.marker([44.6615,-74.9779],{icon:L.divIcon({html:'<div style="font-size:18px;line-height:1;">🚑</div>',className:'',iconSize:[22,22],iconAnchor:[11,11]})}).addTo(map)
   .bindPopup('<b>Clarkson EMS / Student Health</b>');
 // Key chokepoint
-L.marker([44.6660,-74.9838],{icon:L.divIcon({html:'<div style="font-size:16px;line-height:1;">⚠️</div>',className:'',iconSize:[20,20],iconAnchor:[10,10]})}).addTo(map)
+L.marker([44.6655,-74.9840],{icon:L.divIcon({html:'<div style="font-size:16px;line-height:1;">⚠️</div>',className:'',iconSize:[20,20],iconAnchor:[10,10]})}).addTo(map)
   .bindPopup('<b>Maple St / Clarkson Ave chokepoint</b><br><span style="font-size:11px;color:#9ca3af;">Main walking corridor campus → downtown</span>');
+
+geocodeAll();
 
 // ── TIMELINE ──
 const tl = document.getElementById('tl-track');
