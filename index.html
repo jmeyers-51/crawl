@@ -21,11 +21,10 @@ body{
   display:grid;grid-template-rows:64px 1fr 56px;
 }
 
-/* ══════ HEADER ══════ */
+/* ══ HEADER ══ */
 header{
   background:var(--panel);border-bottom:2px solid var(--border);
-  padding:0 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;
-  flex-shrink:0;
+  padding:0 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-shrink:0;
 }
 .hdr-l{display:flex;align-items:center;gap:12px;min-width:0;overflow:hidden;}
 .live-ring{flex-shrink:0;position:relative;width:14px;height:14px;}
@@ -41,46 +40,26 @@ header{
 #clock-s{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;color:var(--muted);font-variant-numeric:tabular-nums;}
 #clock-ap{font-family:'DM Mono',monospace;font-size:13px;color:var(--dim);margin-left:3px;}
 
-/* ══════ BODY GRID ══════ */
+/* ══ BODY ══ */
 .body{display:grid;grid-template-columns:60fr 40fr;min-height:0;overflow:hidden;}
 
-/* ══════ LEFT COLUMN ══════ */
-.left-col{
-  display:flex;flex-direction:column;
-  border-right:2px solid var(--border);
-  min-height:0;overflow:hidden;
-}
-.sec-label{
-  font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;
-  color:var(--dim);padding:9px 20px 7px;border-bottom:1px solid var(--border);flex-shrink:0;
-}
+/* ══ LEFT ══ */
+.left-col{display:flex;flex-direction:column;border-right:2px solid var(--border);min-height:0;overflow:hidden;}
+.sec-label{font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--dim);padding:9px 20px 7px;border-bottom:1px solid var(--border);flex-shrink:0;}
 .stops-list{display:flex;flex-direction:column;flex:1;min-height:0;}
 
-/* ══════ STOP CARD ══════
-   Layout: [accent-bar 5px] [content padding-left:24px] [right-col]
-   The big decorative number is a ::before pseudo on .stop-body,
-   positioned absolute so it NEVER participates in flex layout.
-   All readable text sits in normal flow above it with position:relative + z-index.
-*/
+/* ══ STOP CARD ══ */
 .stop{
-  flex:1;
-  border-bottom:1px solid var(--border);
+  flex:1;border-bottom:1px solid var(--border);
   display:flex;align-items:stretch;
-  position:relative;
-  transition:background .35s;
-  min-height:0;
-  overflow:hidden;      /* clips the decorative number at card edge */
+  position:relative;transition:background .35s;min-height:0;overflow:hidden;
 }
 .stop:last-child{border-bottom:none;}
 .stop.past{opacity:.2;}
 .stop.active{background:rgba(255,255,255,.028);}
 
-/* 5px left accent bar */
-.stop-accent{
-  flex-shrink:0;width:5px;
-  opacity:.14;transition:opacity .35s;
-  align-self:stretch;
-}
+/* left accent bar */
+.stop-accent{flex-shrink:0;width:5px;align-self:stretch;opacity:.14;transition:opacity .35s;}
 .stop.active .stop-accent{opacity:1;}
 .stop-01 .stop-accent{background:var(--s1);}
 .stop-02 .stop-accent{background:var(--s2);}
@@ -88,58 +67,41 @@ header{
 .stop-04 .stop-accent{background:var(--s4);}
 .stop-05 .stop-accent{background:var(--s5);}
 
-/* center content area — position:relative so children can be z-indexed above deco number */
+/* decorative big number — absolute, behind all text, zero layout impact */
+.stop-deco{
+  position:absolute;
+  right:94px;top:50%;transform:translateY(-50%);
+  font-family:'Syne',sans-serif;font-size:78px;font-weight:800;line-height:1;
+  color:var(--border);letter-spacing:-4px;
+  pointer-events:none;user-select:none;
+  transition:color .35s;
+  /* keep it behind text */
+  z-index:0;
+}
+.stop.active .stop-deco{color:#1c2438;}
+
+/* text content — sits above deco number */
 .stop-body{
   flex:1;min-width:0;
-  position:relative;
   display:flex;flex-direction:column;justify-content:center;
-  padding:12px 10px 12px 20px;
-  gap:4px;
+  padding:10px 8px 10px 18px;gap:4px;
+  position:relative;z-index:1;
 }
-
-/* DECORATIVE BIG NUMBER — absolutely positioned, purely visual, z-index 0 */
-.stop-body::before{
-  content:attr(data-num);
-  position:absolute;
-  right:-8px;top:50%;
-  transform:translateY(-50%);
-  font-family:'Syne',sans-serif;
-  font-size:80px;font-weight:800;line-height:1;
-  color:var(--border);
-  opacity:.8;
-  letter-spacing:-4px;
-  pointer-events:none;
-  user-select:none;
-  z-index:0;
-  transition:color .35s, opacity .35s;
-}
-.stop.active .stop-body::before{color:#1e2840;opacity:1;}
-
-/* All text children sit above the decorative number */
-.stop-name,.stop-addr,.stop-time,.stop-deals{position:relative;z-index:1;}
-
-.stop-name{
-  font-family:'Syne',sans-serif;font-size:22px;font-weight:800;
-  color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.15;
-}
+.stop-name{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.15;}
 .stop-addr{font-size:11px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .stop-time{font-size:13px;color:#7a8aaa;font-weight:500;}
 .stop-deals{font-size:12px;color:#93c5fd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
-/* right column: pills */
+/* right col */
 .stop-r{
-  flex-shrink:0;
-  display:flex;flex-direction:column;align-items:flex-end;justify-content:center;
-  gap:8px;padding:0 18px 0 10px;
-  position:relative;z-index:1;
-  min-width:96px;
+  flex-shrink:0;display:flex;flex-direction:column;
+  align-items:flex-end;justify-content:center;
+  gap:8px;padding:0 16px 0 8px;
+  position:relative;z-index:1;min-width:96px;
 }
-.risk-pill{
-  font-size:9px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;
-  padding:4px 10px;border-radius:4px;display:inline-block;white-space:nowrap;
-}
+.risk-pill{font-size:9px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;padding:4px 10px;border-radius:4px;display:inline-block;white-space:nowrap;}
 .risk-high{background:#2a0808;color:#fca5a5;border:1px solid #991b1b;}
-.risk-med {background:#1f1204;color:#fde68a;border:1px solid #92400e;}
+.risk-med{background:#1f1204;color:#fde68a;border:1px solid #92400e;}
 .live-badge{
   display:flex;align-items:center;gap:5px;
   font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
@@ -147,13 +109,8 @@ header{
   opacity:0;transition:opacity .35s;
 }
 .stop.active .live-badge{opacity:1;}
-.live-dot{
-  width:7px;height:7px;border-radius:50%;flex-shrink:0;
-  animation:livepulse 1.3s ease-in-out infinite;
-}
+.live-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;animation:livepulse 1.3s ease-in-out infinite;}
 @keyframes livepulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(1.6)}}
-
-/* progress bar along card bottom */
 .prog-bar{position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,.03);z-index:2;}
 .prog-fill{height:100%;width:0%;transition:width 1.2s ease;}
 .stop-01 .prog-fill{background:var(--s1);}
@@ -162,44 +119,41 @@ header{
 .stop-04 .prog-fill{background:var(--s4);}
 .stop-05 .prog-fill{background:var(--s5);}
 
-/* ══════ MAP ══════ */
+/* ══ MAP ══ */
 .map-col{position:relative;min-height:0;overflow:hidden;}
 #map{width:100%;height:100%;}
+
+/* THE FIX: SVG overlay is a plain div child of .map-col, NOT inside Leaflet panes.
+   It covers the map exactly. We use latLngToContainerPoint() which returns pixels
+   relative to the map container — no transform math needed, always correct. */
+#flow-svg{
+  position:absolute;top:0;left:0;width:100%;height:100%;
+  pointer-events:none;z-index:500;overflow:visible;
+}
+
 #map-callout{
   position:absolute;top:10px;left:10px;z-index:1000;
-  display:flex;flex-direction:column;gap:5px;
-  pointer-events:none;max-width:210px;
+  display:flex;flex-direction:column;gap:5px;pointer-events:none;max-width:210px;
 }
-.callout-chip{
-  background:rgba(7,9,15,.94);border:1px solid #1e2640;
-  border-radius:5px;padding:8px 12px;backdrop-filter:blur(10px);
-}
+.callout-chip{background:rgba(7,9,15,.94);border:1px solid #1e2640;border-radius:5px;padding:8px 12px;backdrop-filter:blur(10px);}
 .cc-name{font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:#fff;}
 .cc-sub{font-size:10px;color:#93c5fd;margin-top:2px;}
 
-/* ══════ FOOTER TIMELINE ══════ */
+/* ══ FOOTER ══ */
 footer{
   background:var(--panel);border-top:2px solid var(--border);
-  padding:0 24px;display:flex;align-items:center;gap:14px;
-  flex-shrink:0;height:56px;
+  padding:0 24px;display:flex;align-items:center;gap:14px;flex-shrink:0;height:56px;
 }
 .tl-lbl{font-size:11px;font-weight:500;color:var(--text);white-space:nowrap;min-width:34px;}
 .tl-wrap{flex:1;position:relative;padding-top:20px;}
-.tl-track{
-  height:18px;background:#080b12;
-  border:1px solid var(--border);border-radius:3px;
-  position:relative;overflow:visible;
-}
-.tl-seg{
-  position:absolute;top:0;height:100%;border-radius:2px;
-  display:flex;align-items:center;overflow:hidden;transition:all .3s;
-}
+.tl-track{height:18px;background:#080b12;border:1px solid var(--border);border-radius:3px;position:relative;overflow:visible;}
+.tl-seg{position:absolute;top:0;height:100%;border-radius:2px;display:flex;align-items:center;overflow:hidden;transition:all .3s;}
 .tl-seg span{font-size:9px;font-weight:600;color:rgba(255,255,255,.85);padding:0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .tl-now{position:absolute;top:-18px;bottom:0;width:2px;background:#ef4444;z-index:5;box-shadow:0 0 6px #ef4444aa;}
 .tl-now-lbl{position:absolute;top:-20px;transform:translateX(-50%);font-size:9px;color:#ef4444;font-weight:600;white-space:nowrap;font-family:'DM Mono',monospace;}
 .tl-stop-lbl{position:absolute;bottom:calc(100% + 3px);transform:translateX(-50%);font-size:8px;color:var(--dim);white-space:nowrap;font-family:'DM Mono',monospace;pointer-events:none;}
 
-/* Leaflet dark */
+/* Leaflet */
 .leaflet-container{background:#07090f;}
 .leaflet-popup-content-wrapper{background:#0c0f1a;color:#ccd4ee;border:1px solid #1e2640;border-radius:6px;box-shadow:0 6px 24px rgba(0,0,0,.85);font-family:'DM Mono',monospace;}
 .leaflet-popup-tip{background:#0c0f1a;}
@@ -231,20 +185,21 @@ footer{
   </div>
   <div class="map-col">
     <div id="map"></div>
+    <!-- SVG is a sibling of #map, NOT inside Leaflet's panes.
+         Uses latLngToContainerPoint — no transform offset math needed. -->
+    <svg id="flow-svg" xmlns="http://www.w3.org/2000/svg"></svg>
     <div id="map-callout"></div>
   </div>
 </div>
 
 <footer>
   <div class="tl-lbl">5 PM</div>
-  <div class="tl-wrap">
-    <div class="tl-track" id="tl-track"></div>
-  </div>
+  <div class="tl-wrap"><div class="tl-track" id="tl-track"></div></div>
   <div class="tl-lbl" style="text-align:right">2 AM</div>
 </footer>
 
 <script>
-// ── DATA ──────────────────────────────────────────────────────────────
+// ── DATA ──
 const STOPS=[
   {id:'01',cls:'stop-01',name:"Eben's Hearth",         addr:'115 Maple St',        lat:44.6675885,lng:-75.0012585,start:[17,0], end:[19,30],deals:"$5 PBR liters · $2 Jim Beam Honey shots",risk:'med', color:'#22c55e',zR:90},
   {id:'02',cls:'stop-02',name:"Cactus Grill & Cantina",addr:'11 Raymond St',        lat:44.6696393,lng:-74.9882468,start:[19,30],end:[21,30],deals:"$1 off margaritas · $5 Coronas",           risk:'med', color:'#3b82f6',zR:85},
@@ -252,7 +207,6 @@ const STOPS=[
   {id:'04',cls:'stop-04',name:"McDuff's Pub",           addr:'59 Market St',        lat:44.6704855,lng:-74.9872280,start:[21,30],end:[23,30],deals:"Mug night $10 / $3 refill · $4 beers",     risk:'high',color:'#ef4444',zR:85},
   {id:'05',cls:'stop-05',name:"The Circuit",            addr:'6 Elm St, 2nd floor', lat:44.6701962,lng:-74.9861513,start:[23,30],end:[26,0], deals:"Tipsy Turtle $4 · $3 drafts",              risk:'high',color:'#a855f7',zR:85},
 ];
-
 const WATCHES=[
   {name:'Cheel Arena',        sub:'Golden Knight · departure',lat:44.664515, lng:-75.001517,color:'#f59e0b',zR:130,icon:'arena'},
   {name:'Walker Arena',       sub:'Recreation · pre-crawl',  lat:44.665989, lng:-74.991449,color:'#f59e0b',zR:120,icon:'rec'},
@@ -260,19 +214,18 @@ const WATCHES=[
   {name:'TAC Student Center', sub:'Transit & return node',   lat:44.661699, lng:-74.997914,color:'#fb923c',zR:105,icon:'student'},
   {name:'Campus Safety / EMS',sub:'Emergency · 24 hr',      lat:44.663001, lng:-74.998398,color:'#22d3ee',zR:75, icon:'ems'},
 ];
-
-// Animated flow paths — dots only, no static lines
+// Each flow: array of [lat,lng] waypoints, color, dot size, count, speed, stagger
 const FLOWS=[
-  {pts:[[44.664515,-75.001517],[44.6638,-74.9993],[44.6655,-75.001],[44.6675885,-75.0012585]],             color:'#f97316',dotR:5,  numDots:4,spd:.055,delay:0},
-  {pts:[[44.665989,-74.991449],[44.665084,-74.995035],[44.6668,-74.999],[44.6675885,-75.0012585]],         color:'#f59e0b',dotR:4,  numDots:3,spd:.048,delay:.35},
-  {pts:[[44.6675885,-75.0012585],[44.6683,-74.9965],[44.6691,-74.9925],[44.6696393,-74.9882468]],          color:'#3b82f6',dotR:4.5,numDots:4,spd:.052,delay:.7},
-  {pts:[[44.6696393,-74.9882468],[44.6692,-74.9878],[44.6689,-74.9874],[44.6687557,-74.9871997]],          color:'#f97316',dotR:4,  numDots:3,spd:.065,delay:.2},
-  {pts:[[44.6687557,-74.9871997],[44.6694,-74.9872],[44.67005,-74.9872],[44.6704855,-74.9872280]],         color:'#ef4444',dotR:4,  numDots:3,spd:.060,delay:.5},
-  {pts:[[44.6704855,-74.9872280],[44.6703,-74.9867],[44.6702,-74.9863],[44.6701962,-74.9861513]],          color:'#a855f7',dotR:4.5,numDots:3,spd:.058,delay:.1},
-  {pts:[[44.6701962,-74.9861513],[44.6694,-74.9876],[44.6683,-74.9898],[44.6672,-74.994],[44.661699,-74.997914]],color:'#64748b',dotR:3.5,numDots:3,spd:.038,delay:1.0},
+  {pts:[[44.664515,-75.001517],[44.6638,-74.9993],[44.6655,-75.001],[44.6675885,-75.0012585]],             color:'#f97316',r:5,  n:4,spd:.055,off:0},
+  {pts:[[44.665989,-74.991449],[44.665084,-74.995035],[44.6668,-74.999],[44.6675885,-75.0012585]],         color:'#f59e0b',r:4,  n:3,spd:.048,off:.35},
+  {pts:[[44.6675885,-75.0012585],[44.6683,-74.9965],[44.6691,-74.9925],[44.6696393,-74.9882468]],          color:'#3b82f6',r:4.5,n:4,spd:.052,off:.7},
+  {pts:[[44.6696393,-74.9882468],[44.6692,-74.9878],[44.6689,-74.9874],[44.6687557,-74.9871997]],          color:'#f97316',r:4,  n:3,spd:.065,off:.2},
+  {pts:[[44.6687557,-74.9871997],[44.6694,-74.9872],[44.67005,-74.9872],[44.6704855,-74.9872280]],         color:'#ef4444',r:4,  n:3,spd:.060,off:.5},
+  {pts:[[44.6704855,-74.9872280],[44.6703,-74.9867],[44.6702,-74.9863],[44.6701962,-74.9861513]],          color:'#a855f7',r:4.5,n:3,spd:.058,off:.1},
+  {pts:[[44.6701962,-74.9861513],[44.6694,-74.9876],[44.6683,-74.9898],[44.6672,-74.994],[44.661699,-74.997914]],color:'#64748b',r:3.5,n:3,spd:.038,off:1.0},
 ];
 
-// ── HELPERS ──────────────────────────────────────────────────────────
+// ── HELPERS ──
 const TL_START=17*60,TL_END=26*60;
 const toM=hm=>hm[0]*60+hm[1];
 function nowM(){const n=new Date();let h=n.getHours(),m=n.getMinutes();if(h<4)h+=24;return h*60+m;}
@@ -282,15 +235,15 @@ const isActive=s=>{const c=nowM(),st=toM(s.start),en=toM(s.end);return c>=st&&c<
 const isPast=s=>nowM()>toM(s.end);
 function progPct(s){const c=nowM(),st=toM(s.start),en=toM(s.end);if(c<st)return 0;if(c>en)return 100;return Math.round((c-st)/(en-st)*100);}
 
-// ── BUILD STOP CARDS ─────────────────────────────────────────────────
+// ── BUILD STOP CARDS ──
 const stopsCol=document.getElementById('stops-col');
 STOPS.forEach(s=>{
   const d=document.createElement('div');
   d.className=`stop ${s.cls}`;d.id=`stop-${s.id}`;
-  // data-num drives the CSS ::before pseudo-element — zero layout impact
   d.innerHTML=`
     <div class="stop-accent"></div>
-    <div class="stop-body" data-num="${s.id}">
+    <div class="stop-deco">${s.id}</div>
+    <div class="stop-body">
       <div class="stop-name">${s.name}</div>
       <div class="stop-addr">${s.addr}</div>
       <div class="stop-time">${fmtHM(s.start)} – ${fmtHM(s.end)}</div>
@@ -306,7 +259,7 @@ STOPS.forEach(s=>{
   stopsCol.appendChild(d);
 });
 
-// ── MAP ──────────────────────────────────────────────────────────────
+// ── MAP ──
 const allPts=[...STOPS.map(s=>[s.lat,s.lng]),...WATCHES.map(w=>[w.lat,w.lng])];
 const map=L.map('map',{zoomControl:true,attributionControl:false}).setView([44.6648,-74.996],15);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:19}).addTo(map);
@@ -322,120 +275,119 @@ STOPS.forEach(s=>{
   stopCircles[s.id]=L.circle([s.lat,s.lng],{radius:s.zR,color:s.color,weight:1.5,fillColor:s.color,fillOpacity:.10,opacity:.5}).addTo(map);
 });
 
-// ── FLOW ANIMATION ───────────────────────────────────────────────────
-// SVG injected into Leaflet's overlayPane.
-// Every frame: project lat/lng → layer pixels, subtract the pane's CSS transform offset.
-// This keeps dots geo-locked through any pan or zoom.
-const overlayPane=map.getPanes().overlayPane;
-const flowSVG=document.createElementNS('http://www.w3.org/2000/svg','svg');
-flowSVG.setAttribute('xmlns','http://www.w3.org/2000/svg');
-flowSVG.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible;';
-overlayPane.appendChild(flowSVG);
+// ── FLOW ANIMATION ──
+// THE KEY FIX: SVG is a plain absolutely-positioned element over the map div.
+// We use map.latLngToContainerPoint(latlng) which returns px coords relative
+// to the map container div itself — completely unaffected by Leaflet's internal
+// pane transforms. Pan/zoom safe with zero offset math.
 
-// Create dot + arrow elements upfront
-const dotEls=[];   // {el, flow, t, spd}
-const arrowEls=[]; // {el, flow}
+const flowSVG = document.getElementById('flow-svg');
+
+// Build one circle element per dot, one polygon per flow arrowhead
+const dotState=[];
+const arrowState=[];
+
 FLOWS.forEach(f=>{
-  for(let i=0;i<f.numDots;i++){
+  // Dots
+  for(let i=0;i<f.n;i++){
     const el=document.createElementNS('http://www.w3.org/2000/svg','circle');
-    el.setAttribute('r', f.dotR);
+    el.setAttribute('r', String(f.r));
     el.setAttribute('fill', f.color);
     el.setAttribute('opacity','0');
     flowSVG.appendChild(el);
-    dotEls.push({el, flow:f, t:(i/f.numDots)+f.delay, spd:f.spd});
+    dotState.push({
+      el,
+      flow: f,
+      t: (i/f.n) + f.off,   // staggered phase offset
+      spd: f.spd
+    });
   }
+  // Arrowhead
   const arr=document.createElementNS('http://www.w3.org/2000/svg','polygon');
   arr.setAttribute('fill', f.color);
   arr.setAttribute('opacity','0');
   flowSVG.appendChild(arr);
-  arrowEls.push({el:arr, flow:f});
+  arrowState.push({el:arr, flow:f});
 });
 
-// Convert flow's lat/lng array → current screen pixel points
-function toPx(flow){
-  return flow.pts.map(ll=>map.latLngToLayerPoint(L.latLng(ll[0],ll[1])));
+// Project a flow's lat/lng pts to container pixel coords — called every frame
+function flowContainerPts(flow){
+  return flow.pts.map(ll => map.latLngToContainerPoint(L.latLng(ll[0],ll[1])));
 }
 
-// Interpolate position at fraction t (0–1) along a pixel polyline
-function interp(px,t){
-  t=((t%1)+1)%1;
-  let lens=[],tot=0;
-  for(let i=0;i<px.length-1;i++){
-    const dx=px[i+1].x-px[i].x,dy=px[i+1].y-px[i].y;
-    const l=Math.sqrt(dx*dx+dy*dy);lens.push(l);tot+=l;
+// Interpolate position at normalized t (0–1) along a polyline of {x,y} pts
+function interpPoly(pts, t){
+  t = ((t % 1) + 1) % 1;
+  const lens = [];
+  let total = 0;
+  for(let i=0;i<pts.length-1;i++){
+    const dx=pts[i+1].x-pts[i].x, dy=pts[i+1].y-pts[i].y;
+    const l=Math.sqrt(dx*dx+dy*dy);
+    lens.push(l); total+=l;
   }
-  let rem=t*tot;
+  let rem = t * total;
   for(let i=0;i<lens.length;i++){
-    if(rem<=lens[i]||i===lens.length-1){
-      const f=lens[i]>0?Math.min(rem/lens[i],1):0;
-      const dx=px[i+1].x-px[i].x,dy=px[i+1].y-px[i].y;
-      return{x:px[i].x+dx*f, y:px[i].y+dy*f, ang:Math.atan2(dy,dx)};
+    const l=lens[i];
+    if(rem<=l || i===lens.length-1){
+      const f2 = l>0 ? Math.min(rem/l,1) : 0;
+      const dx=pts[i+1].x-pts[i].x, dy=pts[i+1].y-pts[i].y;
+      return{ x:pts[i].x+dx*f2, y:pts[i].y+dy*f2, ang:Math.atan2(dy,dx) };
     }
-    rem-=lens[i];
+    rem -= l;
   }
 }
 
-// Fade opacity by position on path
-function fadeAt(t){
+// Fade in at start of path, fade out at end
+function fadeOp(t){
   t=((t%1)+1)%1;
   if(t<0.08) return t/0.08;
   if(t>0.85) return (1-t)/0.15;
   return 1;
 }
 
-// The pane offset Leaflet applies as CSS transform — must subtract for correct coords
-function paneOff(){
-  const st=window.getComputedStyle(overlayPane).transform;
-  if(!st||st==='none') return{x:0,y:0};
-  const m=new DOMMatrix(st);
-  return{x:m.m41, y:m.m42};
-}
-
 let prevTs=null;
 function animLoop(ts){
   if(prevTs===null) prevTs=ts;
-  const dt=(ts-prevTs)/1000;
+  const dt = Math.min((ts-prevTs)/1000, 0.1); // cap dt to avoid big jumps
   prevTs=ts;
-  const{x:ox,y:oy}=paneOff();
 
-  dotEls.forEach(d=>{
-    d.t+=d.spd*dt;
-    const px=toPx(d.flow);
-    const pos=interp(px,d.t);
+  dotState.forEach(d=>{
+    d.t += d.spd * dt;
+    const pts = flowContainerPts(d.flow);
+    const pos = interpPoly(pts, d.t);
     if(!pos) return;
-    d.el.setAttribute('cx', (pos.x-ox).toFixed(1));
-    d.el.setAttribute('cy', (pos.y-oy).toFixed(1));
-    d.el.setAttribute('opacity', (fadeAt(d.t)*0.95).toFixed(2));
+    d.el.setAttribute('cx', pos.x.toFixed(1));
+    d.el.setAttribute('cy', pos.y.toFixed(1));
+    d.el.setAttribute('opacity', (fadeOp(d.t) * 0.95).toFixed(2));
   });
 
-  arrowEls.forEach(a=>{
-    const px=toPx(a.flow);
-    const pos=interp(px,0.62);
-    if(!pos){a.el.setAttribute('opacity','0');return;}
-    const sz=a.flow.dotR*2.3;
-    const ax=pos.x-ox, ay=pos.y-oy;
+  arrowState.forEach(a=>{
+    const pts = flowContainerPts(a.flow);
+    const pos = interpPoly(pts, 0.62);
+    if(!pos){ a.el.setAttribute('opacity','0'); return; }
+    const sz = a.flow.r * 2.3;
     const c=Math.cos(pos.ang), s=Math.sin(pos.ang);
-    const tip=[ax+c*sz,        ay+s*sz       ];
-    const rL =[ax-c*sz*.6+s*sz*.5, ay-s*sz*.6-c*sz*.5];
-    const rR =[ax-c*sz*.6-s*sz*.5, ay-s*sz*.6+c*sz*.5];
+    const tip = [pos.x+c*sz,          pos.y+s*sz         ];
+    const rL  = [pos.x-c*sz*.6+s*sz*.5, pos.y-s*sz*.6-c*sz*.5];
+    const rR  = [pos.x-c*sz*.6-s*sz*.5, pos.y-s*sz*.6+c*sz*.5];
     a.el.setAttribute('points',
       `${tip[0].toFixed(1)},${tip[1].toFixed(1)} `+
       `${rL[0].toFixed(1)},${rL[1].toFixed(1)} `+
       `${rR[0].toFixed(1)},${rR[1].toFixed(1)}`);
-    a.el.setAttribute('opacity','0.55');
+    a.el.setAttribute('opacity','0.6');
   });
 
   requestAnimationFrame(animLoop);
 }
 
-// Start animation after a short delay to ensure map is fully rendered
-setTimeout(()=>requestAnimationFrame(animLoop), 400);
+// Start immediately — no waiting for map events needed
+requestAnimationFrame(animLoop);
 
-// ── STOP MARKERS ─────────────────────────────────────────────────────
+// ── STOP MARKERS ──
 function makeStopIcon(s,active){
   const sz=active?44:34;
   const bg=active?s.color:'#12162a';
-  const bdr=active?'#ffffff':'#252d48';
+  const bdr=active?'#fff':'#252d48';
   const glow=active?`box-shadow:0 0 20px ${s.color}99;`:'';
   return L.divIcon({
     html:`<div style="width:${sz}px;height:${sz}px;border-radius:8px;background:${bg};display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Syne',sans-serif;font-weight:800;font-size:${active?15:12}px;border:2.5px solid ${bdr};${glow}">${s.id}</div>`,
@@ -449,7 +401,7 @@ STOPS.forEach(s=>{
     .bindPopup(`<b style="font-size:14px;font-family:'Syne',sans-serif;">${s.id} · ${s.name}</b><br><span style="color:#7eb8ff">${s.addr}</span><br><span style="color:#505878">${fmtHM(s.start)} – ${fmtHM(s.end)}</span><br><span style="color:#fde68a">${s.deals}</span>`);
 });
 
-// ── WATCH MARKERS ────────────────────────────────────────────────────
+// ── WATCH MARKERS ──
 const W_SVG={
   arena:  `<path d="M3 9V7a5 5 0 0 1 10 0v2" stroke="C" stroke-width="1.4"/><rect x="1" y="7.5" width="14" height="6" rx="1" stroke="C" stroke-width="1.3"/>`,
   rec:    `<circle cx="8" cy="8" r="6.3" stroke="C" stroke-width="1.3"/><path d="M4 6Q8 3.5 12 6M4 10Q8 12.5 12 10" stroke="C" stroke-width="1.1" fill="none"/>`,
@@ -473,7 +425,7 @@ WATCHES.forEach(w=>{
     .bindPopup(`<b>${w.name}</b><br><span style="color:#93c5fd">${w.sub}</span>`);
 });
 
-// Map legend
+// Legend
 const legend=L.control({position:'bottomright'});
 legend.onAdd=()=>{
   const d=L.DomUtil.create('div');
@@ -488,7 +440,7 @@ legend.onAdd=()=>{
 legend.addTo(map);
 map.fitBounds(allPts,{padding:[44,40]});
 
-// ── TIMELINE ─────────────────────────────────────────────────────────
+// ── TIMELINE ──
 const tlTrack=document.getElementById('tl-track');
 STOPS.forEach(s=>{
   const seg=document.createElement('div');
@@ -497,11 +449,8 @@ STOPS.forEach(s=>{
   seg.style.width=(pct(toM(s.end))-pct(toM(s.start)))+'%';
   seg.style.background=s.color+'44';
   seg.style.borderTop=`2px solid ${s.color}88`;
-  // Show stop id + truncated name
-  const shortName=s.name.replace(/[&']/g,'').split(' ')[0];
-  seg.innerHTML=`<span>${s.id} ${shortName}</span>`;
+  seg.innerHTML=`<span>${s.id} ${s.name.replace(/[&']/g,'').split(' ')[0]}</span>`;
   tlTrack.appendChild(seg);
-
   const lbl=document.createElement('div');
   lbl.className='tl-stop-lbl';
   lbl.style.left=(pct(toM(s.start))+(pct(toM(s.end))-pct(toM(s.start)))/2)+'%';
@@ -513,7 +462,7 @@ const nowLine=document.createElement('div');nowLine.className='tl-now';nowLine.i
 const nowLbl =document.createElement('div');nowLbl.className='tl-now-lbl';nowLbl.id='tl-now-lbl';
 tlTrack.appendChild(nowLine);tlTrack.appendChild(nowLbl);
 
-// ── TICK ─────────────────────────────────────────────────────────────
+// ── TICK ──
 function tick(){
   const now=new Date();
   let h=now.getHours(),m=now.getMinutes(),sec=now.getSeconds();
@@ -525,29 +474,25 @@ function tick(){
 
   const callout=document.getElementById('map-callout');
   callout.innerHTML='';
-
   STOPS.forEach(s=>{
     const el=document.getElementById(`stop-${s.id}`);
-    const act=isActive(s), past=isPast(s);
+    const act=isActive(s),past=isPast(s);
     el.classList.toggle('active',act);
     el.classList.toggle('past',past&&!act);
     document.getElementById(`pf-${s.id}`).style.width=progPct(s)+'%';
     markerMap[s.id].setIcon(makeStopIcon(s,act));
     if(stopCircles[s.id]) stopCircles[s.id].setStyle({fillOpacity:act?.18:.10,opacity:act?.78:.45,weight:act?2.5:1.5});
-
     if(act){
       const chip=document.createElement('div');
       chip.className='callout-chip';
       chip.innerHTML=`<div class="cc-name" style="color:${s.color}">▸ ${s.id} · ${s.name}</div><div class="cc-sub">${s.addr} &nbsp;·&nbsp; Until ${fmtHM(s.end)}</div>`;
       callout.appendChild(chip);
     }
-
     const seg=document.getElementById(`tl-${s.id}`);
     seg.style.background=act?s.color+'72':s.color+'40';
     seg.style.borderTop=`2px solid ${act?s.color:s.color+'60'}`;
     seg.style.boxShadow=act?`0 0 8px ${s.color}66`:'none';
   });
-
   const cp=pct(nowM());
   document.getElementById('tl-now').style.left=cp+'%';
   document.getElementById('tl-now-lbl').style.left=cp+'%';
