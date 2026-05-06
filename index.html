@@ -7,113 +7,113 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500&family=Syne:wght@700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap');
 
 *{box-sizing:border-box;margin:0;padding:0;}
 
 :root{
-  --bg:     #07090f;
-  --panel:  #0b0e17;
-  --border: #141826;
-  --muted:  #333a55;
-  --dim:    #424d6a;
-  --text:   #b8c2de;
-  --s1:#22c55e; --s2:#3b82f6; --s3:#f97316; --s4:#ef4444; --s5:#a855f7;
+  --bg:#07090f; --panel:#0c0f1a; --border:#18202e;
+  --muted:#3a4260; --dim:#505878; --text:#ccd4ee;
+  --s1:#22c55e;--s2:#3b82f6;--s3:#f97316;--s4:#ef4444;--s5:#a855f7;
 }
+
+html,body{height:100%;overflow:hidden;}
 
 body{
-  background:var(--bg); color:var(--text);
+  background:var(--bg);color:var(--text);
   font-family:'DM Mono',monospace;
-  height:100vh;
   display:grid;
-  grid-template-rows:52px 1fr 38px;
-  overflow:hidden;
+  grid-template-rows:64px 1fr 56px;
 }
 
-/* ── HEADER ── */
+/* ════════════════════════════
+   HEADER
+════════════════════════════ */
 header{
   background:var(--panel);
-  border-bottom:1px solid var(--border);
-  padding:0 18px;
-  display:flex; align-items:center; justify-content:space-between; gap:14px;
+  border-bottom:2px solid var(--border);
+  padding:0 24px;
+  display:flex;align-items:center;justify-content:space-between;gap:20px;
+  flex-shrink:0;
 }
-.hdr-l{display:flex;align-items:center;gap:9px;min-width:0;}
-.live-ring{
-  flex-shrink:0; position:relative; width:14px; height:14px;
-}
-.live-ring::before,.live-ring::after{
-  content:''; position:absolute; inset:0; border-radius:50%;
-}
+.hdr-l{display:flex;align-items:center;gap:12px;min-width:0;}
+.live-ring{flex-shrink:0;position:relative;width:16px;height:16px;}
+.live-ring::before,.live-ring::after{content:'';position:absolute;inset:0;border-radius:50%;}
 .live-ring::before{background:#ef4444;}
-.live-ring::after{
-  background:transparent; border:1.5px solid #ef4444;
-  animation:ping 1.6s ease-out infinite;
-}
-@keyframes ping{0%{transform:scale(1);opacity:.8}100%{transform:scale(2.4);opacity:0}}
+.live-ring::after{background:transparent;border:2px solid #ef4444;animation:ping 1.6s ease-out infinite;}
+@keyframes ping{0%{transform:scale(1);opacity:.9}100%{transform:scale(2.6);opacity:0}}
 
 .hdr-title{
-  font-family:'Syne',sans-serif; font-size:12px; font-weight:800;
-  letter-spacing:.3px; color:#fff; white-space:nowrap;
+  font-family:'Syne',sans-serif;font-size:15px;font-weight:800;
+  letter-spacing:.4px;color:#fff;white-space:nowrap;
 }
-.hdr-sep{color:var(--muted); font-size:11px;}
-.hdr-sub{font-size:10px;color:var(--dim);white-space:nowrap;}
+.hdr-sep{color:var(--muted);font-size:13px;}
+.hdr-sub{font-size:11px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
 .clock-wrap{display:flex;align-items:baseline;gap:4px;flex-shrink:0;}
 #clock-hm{
-  font-family:'Syne',sans-serif; font-size:26px; font-weight:800;
-  font-variant-numeric:tabular-nums; color:#fff; letter-spacing:.5px;
+  font-family:'Syne',sans-serif;font-size:36px;font-weight:800;
+  font-variant-numeric:tabular-nums;color:#fff;letter-spacing:1px;
 }
 #clock-s{
-  font-family:'DM Mono',monospace; font-size:14px; font-weight:500;
-  color:var(--dim); font-variant-numeric:tabular-nums; letter-spacing:.5px;
-  min-width:28px;
+  font-family:'DM Mono',monospace;font-size:20px;font-weight:500;
+  color:var(--muted);font-variant-numeric:tabular-nums;
 }
 #clock-ap{
-  font-family:'DM Mono',monospace; font-size:11px; color:var(--muted);
+  font-family:'DM Mono',monospace;font-size:13px;
+  color:var(--dim);margin-left:3px;
 }
 
-/* ── BODY ── */
-.body{
-  display:grid;
-  grid-template-columns:60fr 40fr;   /* 60 / 40 */
-  min-height:0; overflow:hidden;
-}
+/* ════════════════════════════
+   BODY GRID  60 / 40
+════════════════════════════ */
+.body{display:grid;grid-template-columns:60fr 40fr;min-height:0;overflow:hidden;}
 
-/* ── LEFT COLUMN ── */
+/* ════════════════════════════
+   LEFT COLUMN
+════════════════════════════ */
 .left-col{
-  display:flex; flex-direction:column;
-  border-right:1px solid var(--border);
-  min-height:0; overflow:hidden;
+  display:flex;flex-direction:column;
+  border-right:2px solid var(--border);
+  min-height:0;overflow:hidden;
+  background:var(--bg);
 }
 
 .sec-label{
-  font-size:8.5px; font-weight:500; letter-spacing:1.6px;
-  text-transform:uppercase; color:var(--dim);
-  padding:7px 14px 5px;
-  border-bottom:1px solid var(--border);
-  flex-shrink:0;
-  display:flex; align-items:center; gap:7px;
+  font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;
+  color:var(--dim);padding:10px 20px 8px;
+  border-bottom:1px solid var(--border);flex-shrink:0;
 }
-.sec-label-line{flex:1;height:1px;background:var(--border);}
 
-/* STOPS */
+/* ════════════════════════════
+   STOP CARDS  — BIG & BOLD
+════════════════════════════ */
 .stops-list{display:flex;flex-direction:column;flex:3;min-height:0;}
 
 .stop{
-  flex:1; border-bottom:1px solid var(--border);
-  padding:0 14px 0 12px;
-  display:flex; align-items:center; gap:11px;
-  position:relative; overflow:hidden;
-  transition:background .35s; min-height:0;
+  flex:1;
+  border-bottom:1px solid var(--border);
+  padding:0 20px;
+  display:flex;align-items:center;gap:16px;
+  position:relative;overflow:hidden;
+  transition:background .4s;
+  min-height:0;
+  cursor:default;
 }
 .stop:last-child{border-bottom:none;}
-.stop.past{opacity:.25;}
-.stop.active{background:rgba(255,255,255,.018);}
 
-/* left accent bar */
+/* Dim completed stops */
+.stop.past{ opacity:.22; }
+
+/* Active card gets a tinted background wash */
+.stop.active{
+  background:linear-gradient(90deg, rgba(255,255,255,.04) 0%, transparent 100%);
+}
+
+/* Fat left accent bar */
 .stop::before{
-  content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
-  opacity:.2; transition:opacity .35s;
+  content:'';position:absolute;left:0;top:0;bottom:0;width:5px;
+  opacity:.18;transition:opacity .4s, background .4s;
 }
 .stop.active::before{opacity:1;}
 .stop-01::before{background:var(--s1);}
@@ -122,137 +122,206 @@ header{
 .stop-04::before{background:var(--s4);}
 .stop-05::before{background:var(--s5);}
 
-/* number badge */
-.stop-badge{
-  flex-shrink:0; width:26px; height:26px; border-radius:6px;
-  display:flex; align-items:center; justify-content:center;
-  font-family:'Syne',sans-serif; font-size:11px; font-weight:800; color:#fff;
-  background:var(--border); border:1.5px solid var(--muted);
-  transition:all .35s;
+/* Giant stop number */
+.stop-num{
+  flex-shrink:0;
+  font-family:'Syne',sans-serif;
+  font-size:64px;font-weight:800;
+  line-height:1;
+  color:var(--border);
+  transition:color .4s;
+  width:72px;text-align:center;
+  letter-spacing:-2px;
 }
-.stop-01.active .stop-badge{background:var(--s1);border-color:var(--s1);box-shadow:0 0 12px #22c55e44;}
-.stop-02.active .stop-badge{background:var(--s2);border-color:var(--s2);box-shadow:0 0 12px #3b82f644;}
-.stop-03.active .stop-badge{background:var(--s3);border-color:var(--s3);box-shadow:0 0 12px #f9731644;}
-.stop-04.active .stop-badge{background:var(--s4);border-color:var(--s4);box-shadow:0 0 12px #ef444444;}
-.stop-05.active .stop-badge{background:var(--s5);border-color:var(--s5);box-shadow:0 0 12px #a855f744;}
+.stop.active .stop-num{color:var(--muted);}
 
+/* Main info block */
 .stop-body{flex:1;min-width:0;}
+
 .stop-name{
-  font-family:'Syne',sans-serif; font-size:13px; font-weight:700;
-  color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  font-family:'Syne',sans-serif;
+  font-size:22px;font-weight:800;
+  color:#fff;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  line-height:1.1;
 }
-.stop-addr{font-size:9px;color:var(--dim);margin-top:1px;}
-.stop-time{font-size:9px;color:var(--muted);margin-top:2px;}
-.stop-deals{font-size:9px;color:#7eb8ff;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.stop.active .stop-name{color:#fff;}
 
-.stop-r{flex-shrink:0;text-align:right;}
+.stop-addr{
+  font-size:11px;color:var(--dim);
+  margin-top:3px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+
+.stop-time{
+  font-size:13px;color:var(--muted);
+  margin-top:4px;font-weight:500;
+}
+
+.stop-deals{
+  font-size:12px;color:#93c5fd;
+  margin-top:4px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  font-weight:500;
+}
+
+/* Right column: risk pill + live badge */
+.stop-r{
+  flex-shrink:0;
+  display:flex;flex-direction:column;align-items:flex-end;gap:8px;
+  min-width:72px;
+}
+
 .risk-pill{
-  font-size:7.5px;font-weight:500;letter-spacing:.8px;text-transform:uppercase;
-  padding:2px 6px;border-radius:3px;display:inline-block;
+  font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  padding:4px 10px;border-radius:4px;display:inline-block;
 }
-.risk-high{background:#2a0a0a;color:#fca5a5;border:1px solid #7f1d1d;}
-.risk-med {background:#271404;color:#fde68a;border:1px solid #78350f;}
-.live-tag{
-  display:block;margin-top:4px;font-size:8px;font-weight:500;
-  letter-spacing:.5px;text-transform:uppercase;opacity:0;transition:opacity .35s;
-}
-.stop.active .live-tag{opacity:1;}
+.risk-high{background:#2a0808;color:#fca5a5;border:1px solid #991b1b;}
+.risk-med {background:#271606;color:#fde68a;border:1px solid #92400e;}
 
-.prog-bar{position:absolute;bottom:0;left:0;right:0;height:2px;}
-.prog-fill{height:100%;width:0%;transition:width 1.2s ease;opacity:.5;}
+.live-badge{
+  display:flex;align-items:center;gap:5px;
+  font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+  opacity:0;transition:opacity .4s;
+  padding:3px 9px;border-radius:4px;
+  border:1px solid;
+}
+.stop.active .live-badge{opacity:1;}
+
+/* Bottom progress bar */
+.prog-bar{position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,.04);}
+.prog-fill{height:100%;width:0%;transition:width 1.2s ease;}
 .stop-01 .prog-fill{background:var(--s1);}
 .stop-02 .prog-fill{background:var(--s2);}
 .stop-03 .prog-fill{background:var(--s3);}
 .stop-04 .prog-fill{background:var(--s4);}
 .stop-05 .prog-fill{background:var(--s5);}
 
-/* WATCH ZONES */
+/* ════════════════════════════
+   WATCH ZONES
+════════════════════════════ */
 .watch-list{display:flex;flex-direction:column;flex:2;min-height:0;}
+
 .watch-item{
   flex:1;border-bottom:1px solid var(--border);
-  padding:0 14px;display:flex;align-items:center;gap:10px;min-height:0;
+  padding:0 20px;display:flex;align-items:center;gap:14px;min-height:0;
 }
 .watch-item:last-child{border-bottom:none;}
 
-/* SVG icon slot */
-.w-icon{flex-shrink:0;width:20px;height:20px;display:flex;align-items:center;justify-content:center;}
-.w-icon svg{width:16px;height:16px;}
+.w-icon-wrap{
+  flex-shrink:0;
+  width:32px;height:32px;
+  background:rgba(255,255,255,.04);
+  border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--border);
+}
+.w-icon-wrap svg{width:18px;height:18px;}
 
 .w-body{flex:1;min-width:0;}
 .w-name{
-  font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:#fff;
+  font-family:'Syne',sans-serif;font-size:14px;font-weight:700;
+  color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.w-sub{
+  font-size:10px;color:var(--dim);margin-top:2px;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-.w-sub{font-size:9px;color:var(--dim);margin-top:1px;}
+
 .w-badge{
-  font-size:7.5px;letter-spacing:.6px;text-transform:uppercase;
-  padding:2px 6px;border-radius:3px;border:1px solid;flex-shrink:0;white-space:nowrap;
+  font-size:9px;letter-spacing:.7px;text-transform:uppercase;font-weight:600;
+  padding:3px 9px;border-radius:4px;border:1px solid;flex-shrink:0;white-space:nowrap;
 }
 
-/* ── MAP ── */
-.map-col{position:relative;min-height:0;}
+/* ════════════════════════════
+   MAP
+════════════════════════════ */
+.map-col{position:relative;min-height:0;overflow:hidden;}
 #map{width:100%;height:100%;}
 
 #map-callout{
-  position:absolute;top:8px;left:8px;z-index:1000;
-  display:flex;flex-direction:column;gap:4px;
-  pointer-events:none;max-width:200px;
+  position:absolute;top:10px;left:10px;z-index:1000;
+  display:flex;flex-direction:column;gap:5px;
+  pointer-events:none;max-width:210px;
 }
 .callout-chip{
-  background:rgba(7,9,15,.93);border:1px solid #1a2138;
-  border-radius:4px;padding:6px 9px;backdrop-filter:blur(8px);
+  background:rgba(7,9,15,.94);border:1px solid #1e2640;
+  border-radius:5px;padding:8px 11px;backdrop-filter:blur(10px);
 }
-.cc-name{font-family:'Syne',sans-serif;font-weight:700;font-size:11px;color:#fff;}
-.cc-sub{font-size:9px;color:#7eb8ff;margin-top:1px;}
+.cc-name{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:#fff;
+}
+.cc-sub{font-size:10px;color:#93c5fd;margin-top:2px;}
 
-/* ── FOOTER TIMELINE ── */
+/* ════════════════════════════
+   FOOTER TIMELINE
+════════════════════════════ */
 footer{
-  background:var(--panel);border-top:1px solid var(--border);
-  padding:0 18px;display:flex;align-items:center;gap:10px;
+  background:var(--panel);
+  border-top:2px solid var(--border);
+  padding:0 24px;
+  display:flex;align-items:center;gap:14px;
+  flex-shrink:0;height:56px;
 }
-.tl-lbl{font-size:9px;color:var(--dim);min-width:26px;}
+.tl-lbl{
+  font-size:11px;font-weight:500;color:var(--text);
+  white-space:nowrap;min-width:36px;
+}
+.tl-wrap{flex:1;position:relative;padding-top:18px;}
+
 .tl-track{
-  flex:1;height:14px;background:#080b12;
-  border:1px solid var(--border);border-radius:2px;
+  height:18px;background:#080b12;
+  border:1px solid var(--border);border-radius:3px;
   position:relative;overflow:visible;
 }
 .tl-seg{
   position:absolute;top:0;height:100%;border-radius:2px;
   display:flex;align-items:center;overflow:hidden;transition:all .3s;
 }
-.tl-seg span{font-size:8px;font-weight:500;color:rgba(255,255,255,.75);padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.tl-now{position:absolute;top:-5px;bottom:-5px;width:1.5px;background:#ef4444;z-index:5;}
-.tl-now-lbl{position:absolute;top:-17px;transform:translateX(-50%);font-size:8.5px;color:#ef4444;font-weight:500;white-space:nowrap;}
+.tl-seg span{
+  font-size:9px;font-weight:600;color:rgba(255,255,255,.85);
+  padding:0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.tl-now{
+  position:absolute;top:-16px;bottom:0;width:2px;
+  background:#ef4444;z-index:5;
+  box-shadow:0 0 6px #ef4444aa;
+}
+.tl-now-lbl{
+  position:absolute;top:-18px;transform:translateX(-50%);
+  font-size:10px;color:#ef4444;font-weight:600;white-space:nowrap;
+  font-family:'DM Mono',monospace;
+}
+.tl-stop-lbl{
+  position:absolute;bottom:calc(100% + 2px);
+  transform:translateX(-50%);
+  font-size:8px;color:var(--dim);white-space:nowrap;
+  font-family:'DM Mono',monospace;pointer-events:none;
+}
 
-/* Leaflet dark */
+/* Leaflet */
 .leaflet-container{background:#07090f;}
-.leaflet-popup-content-wrapper{background:#0b0e17;color:#b8c2de;border:1px solid #1a2138;border-radius:5px;box-shadow:0 4px 20px rgba(0,0,0,.8);font-family:'DM Mono',monospace;}
-.leaflet-popup-tip{background:#0b0e17;}
-.leaflet-popup-content{font-size:11px;line-height:1.7;}
-.leaflet-control-zoom a{background:#0b0e17!important;color:#b8c2de!important;border-color:#1a2138!important;}
-.leaflet-control-zoom a:hover{background:#141826!important;}
-
-/* ── FLOW ARROW ANIMATION (CSS on SVG elements injected into map pane) ── */
-.flow-dot{
-  r:4;
-  animation:flowmove var(--dur,4s) linear infinite;
+.leaflet-popup-content-wrapper{
+  background:#0c0f1a;color:#ccd4ee;
+  border:1px solid #1e2640;border-radius:6px;
+  box-shadow:0 6px 24px rgba(0,0,0,.85);
+  font-family:'DM Mono',monospace;
 }
-@keyframes flowmove{
-  0%  {opacity:0;}
-  5%  {opacity:.9;}
-  90% {opacity:.9;}
-  100%{opacity:0;}
-}
+.leaflet-popup-tip{background:#0c0f1a;}
+.leaflet-popup-content{font-size:12px;line-height:1.7;}
+.leaflet-control-zoom a{background:#0c0f1a!important;color:#ccd4ee!important;border-color:#1e2640!important;}
+.leaflet-control-zoom a:hover{background:#18202e!important;}
 </style>
 </head>
 <body>
 
+<!-- HEADER -->
 <header>
   <div class="hdr-l">
     <div class="live-ring"></div>
     <div class="hdr-title">Clarkson Safety &amp; Security</div>
     <div class="hdr-sep">·</div>
-    <div class="hdr-sub">Class of 2026 Bar Crawl &nbsp;·&nbsp; May 6 2026 &nbsp;·&nbsp; Potsdam NY &nbsp;·&nbsp; Internal</div>
+    <div class="hdr-sub">Class of 2026 Bar Crawl &nbsp;·&nbsp; May 6 2026 &nbsp;·&nbsp; Potsdam NY &nbsp;·&nbsp; Internal use only</div>
   </div>
   <div class="clock-wrap">
     <div id="clock-hm">--:--</div>
@@ -261,11 +330,12 @@ footer{
   </div>
 </header>
 
+<!-- BODY -->
 <div class="body">
   <div class="left-col">
     <div class="sec-label">Bar Crawl Stops</div>
     <div class="stops-list" id="stops-col"></div>
-    <div class="sec-label" style="border-top:1px solid var(--border);">Watch Zones &amp; Foot Traffic</div>
+    <div class="sec-label" style="border-top:1px solid var(--border);">Watch Zones &amp; Foot Traffic Nodes</div>
     <div class="watch-list" id="watch-col"></div>
   </div>
   <div class="map-col">
@@ -274,64 +344,51 @@ footer{
   </div>
 </div>
 
+<!-- FOOTER -->
 <footer>
   <div class="tl-lbl">5 PM</div>
-  <div class="tl-track" id="tl-track"></div>
+  <div class="tl-wrap">
+    <div class="tl-track" id="tl-track"></div>
+  </div>
   <div class="tl-lbl" style="text-align:right">2 AM</div>
 </footer>
 
 <script>
-// ── SVG ICONS (no emoji) ──
-const ICONS = {
-  arena:  `<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="6" width="14" height="8" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M4 6V4a4 4 0 0 1 8 0v2" stroke="currentColor" stroke-width="1.3"/><line x1="8" y1="6" x2="8" y2="14" stroke="currentColor" stroke-width="1" stroke-dasharray="2 2"/></svg>`,
-  rec:    `<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M4.5 6.5 Q8 4 11.5 6.5" stroke="currentColor" stroke-width="1.1" fill="none"/><path d="M4.5 9.5 Q8 12 11.5 9.5" stroke="currentColor" stroke-width="1.1" fill="none"/></svg>`,
-  dorm:   `<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="5" width="12" height="9" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M6 14v-4h4v4" stroke="currentColor" stroke-width="1.2"/><path d="M2 5 L8 1.5 L14 5" stroke="currentColor" stroke-width="1.2"/><rect x="4" y="7" width="2" height="2" rx=".3" fill="currentColor" opacity=".7"/><rect x="10" y="7" width="2" height="2" rx=".3" fill="currentColor" opacity=".7"/></svg>`,
-  student:`<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 2 L15 5.5 L8 9 L1 5.5Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M4 7v4c0 1 1.8 2.5 4 2.5s4-1.5 4-2.5V7" stroke="currentColor" stroke-width="1.2"/><line x1="15" y1="5.5" x2="15" y2="10" stroke="currentColor" stroke-width="1.3"/></svg>`,
-  ems:    `<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1.5" y="4" width="13" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 6.5v3M6.5 8h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="4" cy="12.5" r="1" fill="currentColor"/><circle cx="12" cy="12.5" r="1" fill="currentColor"/></svg>`,
+// ── INLINE SVG ICONS ──
+const ICONS={
+  arena:  `<svg viewBox="0 0 16 16" fill="none"><rect x="1.5" y="7" width="13" height="7" rx="1" stroke="C" stroke-width="1.4"/><path d="M4.5 7V5a3.5 3.5 0 0 1 7 0v2" stroke="C" stroke-width="1.3"/><line x1="8" y1="7" x2="8" y2="14" stroke="C" stroke-width="1" stroke-dasharray="1.5 2" opacity=".5"/></svg>`,
+  rec:    `<svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.3" stroke="C" stroke-width="1.3"/><path d="M4 6Q8 3.5 12 6M4 10Q8 12.5 12 10" stroke="C" stroke-width="1.1"/><line x1="8" y1="1.7" x2="8" y2="14.3" stroke="C" stroke-width="1" opacity=".3"/></svg>`,
+  dorm:   `<svg viewBox="0 0 16 16" fill="none"><rect x="2.5" y="6.5" width="11" height="7.5" rx="1" stroke="C" stroke-width="1.3"/><path d="M2 7L8 2.5 14 7" stroke="C" stroke-width="1.2"/><path d="M6.5 14V11h3v3" stroke="C" stroke-width="1.1"/><rect x="3.5" y="8.5" width="2" height="1.8" rx=".3" fill="C" opacity=".6"/><rect x="10.5" y="8.5" width="2" height="1.8" rx=".3" fill="C" opacity=".6"/></svg>`,
+  student:`<svg viewBox="0 0 16 16" fill="none"><path d="M8 2L15 5.5 8 9 1 5.5Z" stroke="C" stroke-width="1.3" stroke-linejoin="round"/><path d="M4.5 7.2v3.3c0 1.2 1.6 2.5 3.5 2.5s3.5-1.3 3.5-2.5V7.2" stroke="C" stroke-width="1.2"/></svg>`,
+  ems:    `<svg viewBox="0 0 16 16" fill="none"><rect x="1.5" y="5" width="13" height="7.5" rx="1.5" stroke="C" stroke-width="1.3"/><path d="M8 7.5v3M6.5 9h3" stroke="C" stroke-width="1.6" stroke-linecap="round"/><circle cx="4.5" cy="13" r=".9" fill="C"/><circle cx="11.5" cy="13" r=".9" fill="C"/></svg>`,
 };
+function svgIcon(key,color){return ICONS[key].replaceAll('"C"',`"${color}"`);}
 
 // ── DATA ──
-const STOPS = [
+const STOPS=[
   {id:'01',cls:'stop-01',name:"Eben's Hearth",         addr:'115 Maple St',        lat:44.6675885,lng:-75.0012585,start:[17,0], end:[19,30],deals:"$5 PBR liters · $2 Jim Beam Honey shots",risk:'med', color:'#22c55e',zR:90},
   {id:'02',cls:'stop-02',name:"Cactus Grill & Cantina",addr:'11 Raymond St',        lat:44.6696393,lng:-74.9882468,start:[19,30],end:[21,30],deals:"$1 off margaritas · $5 Coronas",           risk:'med', color:'#3b82f6',zR:85},
   {id:'03',cls:'stop-03',name:"Maxfields",              addr:'15 Market St',        lat:44.6687557,lng:-74.9871997,start:[21,30],end:[23,30],deals:"Kill-a-keg $4 · $5 pints",                  risk:'high',color:'#f97316',zR:85},
-  {id:'04',cls:'stop-04',name:"McDuff's Pub",           addr:'59 Market St',        lat:44.6704855,lng:-74.9872280,start:[21,30],end:[23,30],deals:"Mug night $10/$3 refill · $4 beers",        risk:'high',color:'#ef4444',zR:85},
+  {id:'04',cls:'stop-04',name:"McDuff's Pub",           addr:'59 Market St',        lat:44.6704855,lng:-74.9872280,start:[21,30],end:[23,30],deals:"Mug night $10 / $3 refill · $4 beers",     risk:'high',color:'#ef4444',zR:85},
   {id:'05',cls:'stop-05',name:"The Circuit",            addr:'6 Elm St, 2nd floor', lat:44.6701962,lng:-74.9861513,start:[23,30],end:[26,0], deals:"Tipsy Turtle $4 · $3 drafts",              risk:'high',color:'#a855f7',zR:85},
 ];
 
-const WATCHES = [
-  {id:'W1',name:'Cheel Arena',        sub:'Golden Knight · primary departure',  lat:44.664515, lng:-75.001517,color:'#f59e0b',intensity:'high',zR:130,iconKey:'arena',  popup:'<b>Cheel Arena / Golden Knight</b><br>Primary student departure point'},
-  {id:'W2',name:'Walker Arena',       sub:'Recreation · pre-crawl gatherings',  lat:44.665989, lng:-74.991449,color:'#f59e0b',intensity:'high',zR:120,iconKey:'rec',    popup:'<b>Walker Arena</b><br>Pre-crawl congregation'},
-  {id:'W3',name:'Hamlin–Powers Hall', sub:'Dorm corridor · outbound traffic',   lat:44.665084, lng:-74.995035,color:'#fb923c',intensity:'med', zR:110,iconKey:'dorm',   popup:'<b>Hamlin–Powers Hall</b><br>Dorm corridor — monitor outbound students'},
-  {id:'W4',name:'TAC Student Center', sub:'Transit & return gathering node',    lat:44.661699, lng:-74.997914,color:'#fb923c',intensity:'med', zR:105,iconKey:'student', popup:'<b>TAC — Student Center</b><br>Transit node, campus edge'},
-  {id:'W5',name:'Campus Safety / EMS',sub:'Emergency response · 24 hr',        lat:44.663001, lng:-74.998398,color:'#22d3ee',intensity:'ems', zR:75, iconKey:'ems',     popup:'<b>Campus Safety &amp; EMS</b><br>24/7 emergency services'},
+const WATCHES=[
+  {id:'W1',name:'Cheel Arena',        sub:'Golden Knight · primary departure', lat:44.664515, lng:-75.001517,color:'#f59e0b',intensity:'high',zR:130,iconKey:'arena'},
+  {id:'W2',name:'Walker Arena',       sub:'Recreation · pre-crawl gatherings', lat:44.665989, lng:-74.991449,color:'#f59e0b',intensity:'high',zR:120,iconKey:'rec'},
+  {id:'W3',name:'Hamlin–Powers Hall', sub:'Dorm corridor · outbound traffic',  lat:44.665084, lng:-74.995035,color:'#fb923c',intensity:'med', zR:110,iconKey:'dorm'},
+  {id:'W4',name:'TAC Student Center', sub:'Transit & return gathering node',   lat:44.661699, lng:-74.997914,color:'#fb923c',intensity:'med', zR:105,iconKey:'student'},
+  {id:'W5',name:'Campus Safety / EMS',sub:'Emergency response · 24 hr',       lat:44.663001, lng:-74.998398,color:'#22d3ee',intensity:'ems', zR:75, iconKey:'ems'},
 ];
 
-// Traffic flow routes: each segment = {from, to, color, width, label}
-// These represent the expected pedestrian corridors based on real geography
-// Direction: campus departure points → bar stops → later stops
-const FLOWS = [
-  // Cheel → Eben's (heaviest outbound artery)
-  {pts:[[44.664515,-75.001517],[44.663001,-74.998398],[44.6655,-75.001],[44.6675885,-75.0012585]],
-   color:'#f97316',width:3.5,label:'Cheel → Eben\'s',delay:0,dur:5},
-  // Walker → Hamlin → Eben's
-  {pts:[[44.665989,-74.991449],[44.665084,-74.995035],[44.6665,-74.9995],[44.6675885,-75.0012585]],
-   color:'#f59e0b',width:2.5,label:'Walker → Eben\'s',delay:1.2,dur:6},
-  // Eben's → Cantina (mid-crawl flow)
-  {pts:[[44.6675885,-75.0012585],[44.6685,-74.9960],[44.6692,-74.9920],[44.6696393,-74.9882468]],
-   color:'#3b82f6',width:3,label:'Eben\'s → Cantina',delay:0.5,dur:5.5},
-  // Cantina → Market St cluster
-  {pts:[[44.6696393,-74.9882468],[44.6692,-74.9878],[44.6687557,-74.9871997]],
-   color:'#f97316',width:3,label:'→ Market St',delay:0.8,dur:4.5},
-  // Maxfields ↔ McDuff's (concurrent stops, short hop)
-  {pts:[[44.6687557,-74.9871997],[44.6696,-74.9872],[44.6704855,-74.9872280]],
-   color:'#ef4444',width:2.5,label:'Market corridor',delay:0,dur:3.5},
-  // McDuff's / Market → Circuit
-  {pts:[[44.6704855,-74.9872280],[44.6703,-74.9867],[44.6701962,-74.9861513]],
-   color:'#a855f7',width:3,label:'→ Circuit',delay:0.4,dur:4},
-  // Return / late night: Circuit → TAC campus edge
-  {pts:[[44.6701962,-74.9861513],[44.6690,-74.9880],[44.661699,-74.997914]],
-   color:'#64748b',width:2,label:'Return → TAC',delay:1,dur:7},
+const FLOWS=[
+  {pts:[[44.664515,-75.001517],[44.663001,-74.998398],[44.6655,-75.0010],[44.6675885,-75.0012585]],             color:'#f97316',dotR:4.5,numDots:4,speed:.055,delay:0},
+  {pts:[[44.665989,-74.991449],[44.665084,-74.995035],[44.6665,-74.9988],[44.6675885,-75.0012585]],             color:'#f59e0b',dotR:3.5,numDots:3,speed:.048,delay:.3},
+  {pts:[[44.6675885,-75.0012585],[44.6683,-74.9965],[44.6690,-74.9928],[44.6696393,-74.9882468]],               color:'#3b82f6',dotR:4,  numDots:4,speed:.052,delay:.7},
+  {pts:[[44.6696393,-74.9882468],[44.6692,-74.9878],[44.6688,-74.9873],[44.6687557,-74.9871997]],               color:'#f97316',dotR:3.5,numDots:3,speed:.065,delay:.2},
+  {pts:[[44.6687557,-74.9871997],[44.6694,-74.9872],[44.6700,-74.9872],[44.6704855,-74.9872280]],               color:'#ef4444',dotR:3.5,numDots:3,speed:.060,delay:.5},
+  {pts:[[44.6704855,-74.9872280],[44.6703,-74.9867],[44.6702,-74.9863],[44.6701962,-74.9861513]],               color:'#a855f7',dotR:4,  numDots:3,speed:.058,delay:.1},
+  {pts:[[44.6701962,-74.9861513],[44.6695,-74.9875],[44.6685,-74.9895],[44.6675,-74.9940],[44.661699,-74.997914]],color:'#64748b',dotR:3,numDots:3,speed:.038,delay:1.0},
 ];
 
 // ── HELPERS ──
@@ -344,13 +401,13 @@ function isActive(s){const c=nowM(),st=toM(s.start),en=toM(s.end);return c>=st&&
 function isPast(s){return nowM()>toM(s.end);}
 function progPct(s){const c=nowM(),st=toM(s.start),en=toM(s.end);if(c<st)return 0;if(c>en)return 100;return Math.round((c-st)/(en-st)*100);}
 
-// ── BUILD STOPS ──
+// ── BUILD STOP CARDS ──
 const stopsCol=document.getElementById('stops-col');
 STOPS.forEach(s=>{
   const d=document.createElement('div');
   d.className=`stop ${s.cls}`;d.id=`stop-${s.id}`;
   d.innerHTML=`
-    <div class="stop-badge">${s.id}</div>
+    <div class="stop-num">${s.id}</div>
     <div class="stop-body">
       <div class="stop-name">${s.name}</div>
       <div class="stop-addr">${s.addr}</div>
@@ -358,18 +415,21 @@ STOPS.forEach(s=>{
       <div class="stop-deals">${s.deals}</div>
     </div>
     <div class="stop-r">
-      <span class="risk-pill risk-${s.risk}">${s.risk==='high'?'HIGH':'MED'}</span>
-      <span class="live-tag" style="color:${s.color}">● live</span>
+      <span class="risk-pill risk-${s.risk}">${s.risk==='high'?'HIGH RISK':'MODERATE'}</span>
+      <span class="live-badge" id="lb-${s.id}" style="color:${s.color};border-color:${s.color}44;background:${s.color}14;">
+        <span style="width:7px;height:7px;border-radius:50%;background:${s.color};display:inline-block;animation:ping2 1.2s ease-out infinite;"></span>
+        ACTIVE
+      </span>
     </div>
     <div class="prog-bar"><div class="prog-fill" id="pf-${s.id}"></div></div>`;
   stopsCol.appendChild(d);
 });
 
-// ── BUILD WATCH ZONES ──
+// ── BUILD WATCH ZONE ROWS ──
 const watchCol=document.getElementById('watch-col');
 const iLbl={high:'High Traffic',med:'Moderate',ems:'EMS / Response'};
 const iSty={
-  high:'background:#1f1500;color:#fde68a;border-color:#6b3600',
+  high:'background:#1f1500;color:#fde68a;border-color:#713f12',
   med: 'background:#191200;color:#fdba74;border-color:#431407',
   ems: 'background:#041518;color:#67e8f9;border-color:#0e7490'
 };
@@ -377,7 +437,7 @@ WATCHES.forEach(w=>{
   const d=document.createElement('div');
   d.className='watch-item';
   d.innerHTML=`
-    <div class="w-icon" style="color:${w.color}">${ICONS[w.iconKey]||''}</div>
+    <div class="w-icon-wrap" style="border-color:${w.color}33;">${svgIcon(w.iconKey,w.color)}</div>
     <div class="w-body">
       <div class="w-name">${w.name}</div>
       <div class="w-sub">${w.sub}</div>
@@ -391,258 +451,192 @@ const allPts=[...STOPS.map(s=>[s.lat,s.lng]),...WATCHES.map(w=>[w.lat,w.lng])];
 const map=L.map('map',{zoomControl:true,attributionControl:false}).setView([44.6648,-74.9960],15);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:19}).addTo(map);
 
-// ── ZONE CIRCLES ──
+// Zone circles
 WATCHES.forEach(w=>{
-  L.circle([w.lat,w.lng],{radius:w.zR*2.1,color:w.color,weight:0,fillColor:w.color,fillOpacity:.03}).addTo(map);
-  L.circle([w.lat,w.lng],{radius:w.zR,color:w.color,weight:1.1,dashArray:'3 6',fillColor:w.color,fillOpacity:.065,opacity:.45}).addTo(map);
+  L.circle([w.lat,w.lng],{radius:w.zR*2.2,color:w.color,weight:0,fillColor:w.color,fillOpacity:.028}).addTo(map);
+  L.circle([w.lat,w.lng],{radius:w.zR,color:w.color,weight:1.2,dashArray:'3 6',fillColor:w.color,fillOpacity:.065,opacity:.42}).addTo(map);
 });
 const stopCircles={};
 STOPS.forEach(s=>{
-  L.circle([s.lat,s.lng],{radius:s.zR*1.7,color:s.color,weight:0,fillColor:s.color,fillOpacity:.045}).addTo(map);
-  stopCircles[s.id]=L.circle([s.lat,s.lng],{radius:s.zR,color:s.color,weight:1.4,fillColor:s.color,fillOpacity:.10,opacity:.5}).addTo(map);
+  L.circle([s.lat,s.lng],{radius:s.zR*1.8,color:s.color,weight:0,fillColor:s.color,fillOpacity:.04}).addTo(map);
+  stopCircles[s.id]=L.circle([s.lat,s.lng],{radius:s.zR,color:s.color,weight:1.5,fillColor:s.color,fillOpacity:.10,opacity:.5}).addTo(map);
 });
 
-// ── FLOW ARROWS via SVG overlay ──
-// We'll draw the flow lines as Leaflet polylines, then animate dots along them using a custom SVG pane
-// Approach: use Leaflet's SVG renderer and animate circle markers along a path
+// ── ANIMATED FLOW DOTS ──
+// SVG lives in Leaflet's overlayPane; positions computed from latLngToLayerPoint every frame
+// minus the pane's CSS transform so dots stay geo-locked on pan/zoom.
+const overlayPane=map.getPanes().overlayPane;
+const flowSVG=document.createElementNS('http://www.w3.org/2000/svg','svg');
+flowSVG.setAttribute('xmlns','http://www.w3.org/2000/svg');
+flowSVG.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible;';
+overlayPane.appendChild(flowSVG);
 
-// Create a dedicated pane for flow dots above tiles but below markers
-map.createPane('flowPane');
-map.getPane('flowPane').style.zIndex = 350;
-
-// Convert lat/lng path to a sequence of projected points, then animate dots
-function latlngToSVGPath(latlngs) {
-  return latlngs.map(ll => {
-    const pt = map.latLngToLayerPoint(L.latLng(ll[0], ll[1]));
-    return pt;
-  });
-}
-
-// Draw static flow lines (faint)
-FLOWS.forEach(f => {
-  L.polyline(f.pts, {
-    color: f.color, weight: f.width,
-    opacity: .25, pane: 'flowPane'
-  }).addTo(map);
-});
-
-// Animated SVG dots riding along each flow path
-// We overlay a single <svg> on top of the map for the animated dots
-const flowSVG = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-flowSVG.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:600;overflow:visible;';
-document.getElementById('map').appendChild(flowSVG);
-
-// Each flow gets several staggered dots
-const flowDots = []; // {circle, pts (pixel), t, speed, color}
-
-function initFlowDots() {
-  // Clear existing
-  while (flowSVG.firstChild) flowSVG.removeChild(flowSVG.firstChild);
-  flowDots.length = 0;
-
-  FLOWS.forEach((f, fi) => {
-    const numDots = 3; // dots per flow path
-    for (let i = 0; i < numDots; i++) {
-      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      circle.setAttribute('r', f.width * 1.4);
-      circle.setAttribute('fill', f.color);
-      circle.setAttribute('opacity', '0');
-      flowSVG.appendChild(circle);
-
-      flowDots.push({
-        el: circle,
-        flow: f,
-        t: (i / numDots) + (f.delay / f.dur), // staggered start
-        speed: 1 / f.dur,   // fraction of path per second
-        color: f.color,
-        trailLen: 0.05,
-      });
-    }
-
-    // Arrow head markers along the path midpoint (static small triangles)
-    // We place a small arrowhead SVG polygon at the midpoint of each segment
-    if (f.pts.length >= 2) {
-      const mid = Math.floor(f.pts.length / 2);
-      const p1 = f.pts[mid - 1 < 0 ? 0 : mid - 1];
-      const p2 = f.pts[mid];
-      // Will be positioned in updateFlowDots since we need pixel coords
-    }
-  });
-}
-
-// Compute total arc length and point at fraction t along a polyline of pixel coords
-function pathAtT(pixPts, t) {
-  t = ((t % 1) + 1) % 1; // wrap 0-1
-  const segs = [];
-  let total = 0;
-  for (let i = 0; i < pixPts.length - 1; i++) {
-    const dx = pixPts[i+1].x - pixPts[i].x;
-    const dy = pixPts[i+1].y - pixPts[i].y;
-    const len = Math.sqrt(dx*dx + dy*dy);
-    segs.push(len);
-    total += len;
+const dots=[];
+FLOWS.forEach(f=>{
+  for(let i=0;i<f.numDots;i++){
+    const el=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    el.setAttribute('r',f.dotR);el.setAttribute('fill',f.color);el.setAttribute('opacity','0');
+    flowSVG.appendChild(el);
+    dots.push({el,flow:f,t:(i/f.numDots)+f.delay,speed:f.speed});
   }
-  let target = t * total;
-  for (let i = 0; i < segs.length; i++) {
-    if (target <= segs[i] || i === segs.length - 1) {
-      const frac = segs[i] > 0 ? target / segs[i] : 0;
-      return {
-        x: pixPts[i].x + (pixPts[i+1].x - pixPts[i].x) * frac,
-        y: pixPts[i].y + (pixPts[i+1].y - pixPts[i].y) * frac,
-        t: t,
-      };
+});
+const arrows=[];
+FLOWS.forEach(f=>{
+  const el=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+  el.setAttribute('fill',f.color);el.setAttribute('opacity','0.6');
+  flowSVG.appendChild(el);
+  arrows.push({el,flow:f});
+});
+
+function pathPixPts(flow){return flow.pts.map(ll=>map.latLngToLayerPoint(L.latLng(ll[0],ll[1])));}
+function posAtT(pixPts,t){
+  t=((t%1)+1)%1;
+  let segs=[],total=0;
+  for(let i=0;i<pixPts.length-1;i++){
+    const dx=pixPts[i+1].x-pixPts[i].x,dy=pixPts[i+1].y-pixPts[i].y;
+    const l=Math.sqrt(dx*dx+dy*dy);segs.push({l,i});total+=l;
+  }
+  let rem=t*total;
+  for(let s=0;s<segs.length;s++){
+    const{l,i}=segs[s];
+    if(rem<=l||s===segs.length-1){
+      const frac=l>0?Math.min(rem/l,1):0;
+      const dx=pixPts[i+1].x-pixPts[i].x,dy=pixPts[i+1].y-pixPts[i].y;
+      return{x:pixPts[i].x+dx*frac,y:pixPts[i].y+dy*frac,ang:Math.atan2(dy,dx)};
     }
-    target -= segs[i];
+    rem-=l;
   }
 }
+function dotOpacity(t){t=((t%1)+1)%1;if(t<0.08)return t/0.08;if(t>0.85)return(1-t)/0.15;return 1;}
 
-// Fade based on position along path (fade in at start, fade out at end)
-function dotOpacity(t) {
-  t = ((t % 1) + 1) % 1;
-  if (t < 0.08) return t / 0.08;
-  if (t > 0.88) return (1 - t) / 0.12;
-  return 1;
+function getPaneOffset(){
+  const st=window.getComputedStyle(map.getPanes().overlayPane).transform;
+  if(!st||st==='none')return{x:0,y:0};
+  const m=new DOMMatrix(st);return{x:m.m41,y:m.m42};
 }
 
-let lastTime = null;
-function updateFlowDots(timestamp) {
-  if (!lastTime) lastTime = timestamp;
-  const dt = (timestamp - lastTime) / 1000;
-  lastTime = timestamp;
+let lastT=null;
+function animateFlows(ts){
+  if(!lastT)lastT=ts;
+  const dt=(ts-lastT)/1000;lastT=ts;
+  const{x:ox,y:oy}=getPaneOffset();
 
-  flowDots.forEach(d => {
-    d.t = (d.t + d.speed * dt);
-    // pixel points - recompute from lat/lng (handles zoom/pan)
-    const pixPts = d.flow.pts.map(ll => map.latLngToLayerPoint(L.latLng(ll[0], ll[1])));
-    if (pixPts.length < 2) return;
-    const pos = pathAtT(pixPts, d.t % 1);
-    if (!pos) return;
-    d.el.setAttribute('cx', pos.x);
-    d.el.setAttribute('cy', pos.y);
-    d.el.setAttribute('opacity', (dotOpacity(d.t % 1) * 0.85).toFixed(2));
+  dots.forEach(d=>{
+    d.t+=d.speed*dt;
+    const pp=pathPixPts(d.flow);if(pp.length<2)return;
+    const pos=posAtT(pp,d.t%1);if(!pos)return;
+    d.el.setAttribute('cx',(pos.x-ox).toFixed(1));
+    d.el.setAttribute('cy',(pos.y-oy).toFixed(1));
+    d.el.setAttribute('opacity',(dotOpacity(d.t)*0.92).toFixed(2));
   });
-
-  requestAnimationFrame(updateFlowDots);
-}
-
-// Static arrowheads on flow lines
-function drawArrowheads() {
-  // Remove old arrowheads
-  document.querySelectorAll('.flow-arrow').forEach(e => e.remove());
-  FLOWS.forEach(f => {
-    if (f.pts.length < 2) return;
-    // Place arrowhead at 60% along path
-    const pixPts = f.pts.map(ll => map.latLngToLayerPoint(L.latLng(ll[0], ll[1])));
-    const pos60 = pathAtT(pixPts, 0.6);
-    const pos55 = pathAtT(pixPts, 0.55);
-    if (!pos60 || !pos55) return;
-    const angle = Math.atan2(pos60.y - pos55.y, pos60.x - pos55.x) * 180 / Math.PI;
-    const sz = f.width * 2.2;
-    const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-    arrow.classList.add('flow-arrow');
-    // Arrowhead triangle pointing in direction of travel
-    arrow.setAttribute('points', `${sz},0 ${-sz/1.6},${sz/1.8} ${-sz/1.6},${-sz/1.8}`);
-    arrow.setAttribute('fill', f.color);
-    arrow.setAttribute('opacity', '0.55');
-    arrow.setAttribute('transform', `translate(${pos60.x},${pos60.y}) rotate(${angle})`);
-    flowSVG.appendChild(arrow);
+  arrows.forEach(a=>{
+    const pp=pathPixPts(a.flow);if(pp.length<2)return;
+    const pos=posAtT(pp,0.65);if(!pos)return;
+    const sz=a.flow.dotR*2.2;
+    const ax=pos.x-ox,ay=pos.y-oy,ang=pos.ang;
+    const c=Math.cos(ang),s=Math.sin(ang);
+    const tip=[ax+c*sz,ay+s*sz];
+    const rL=[ax-c*(sz*.7)+s*(sz*.55),ay-s*(sz*.7)-c*(sz*.55)];
+    const rR=[ax-c*(sz*.7)-s*(sz*.55),ay-s*(sz*.7)+c*(sz*.55)];
+    a.el.setAttribute('points',`${tip[0].toFixed(1)},${tip[1].toFixed(1)} ${rL[0].toFixed(1)},${rL[1].toFixed(1)} ${rR[0].toFixed(1)},${rR[1].toFixed(1)}`);
   });
+  requestAnimationFrame(animateFlows);
 }
-
-map.on('moveend zoomend', () => {
-  drawArrowheads();
-});
 
 // ── STOP MARKERS ──
-function makeStopIcon(s, active) {
-  const sz = active?38:30, bg=active?s.color:'#12162a', bdr=active?'#fff':'#252d48';
-  const glow = active?`box-shadow:0 0 18px ${s.color}88;`:'';
+function makeStopIcon(s,active){
+  const sz=active?44:34;
+  const bg=active?s.color:'#12162a';
+  const bdr=active?'#fff':'#252d48';
+  const glow=active?`box-shadow:0 0 20px ${s.color}99;`:'';
   return L.divIcon({
-    html:`<div style="width:${sz}px;height:${sz}px;border-radius:8px;background:${bg};display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Syne',sans-serif;font-weight:800;font-size:${active?13:11}px;border:2px solid ${bdr};${glow}">${s.id}</div>`,
+    html:`<div style="width:${sz}px;height:${sz}px;border-radius:8px;background:${bg};display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Syne',sans-serif;font-weight:800;font-size:${active?15:12}px;border:2.5px solid ${bdr};${glow}">${s.id}</div>`,
     className:'',iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]
   });
 }
 const markerMap={};
 STOPS.forEach(s=>{
-  markerMap[s.id]=L.marker([s.lat,s.lng],{icon:makeStopIcon(s,false),zIndexOffset:200}).addTo(map)
-    .bindPopup(`<b>${s.id} · ${s.name}</b><br><span style="color:#7eb8ff">${s.addr}</span><br><span style="color:#555e80">${fmtHM(s.start)} – ${fmtHM(s.end)}</span><br><span style="color:#fde68a">${s.deals}</span>`);
+  markerMap[s.id]=L.marker([s.lat,s.lng],{icon:makeStopIcon(s,false),zIndexOffset:300}).addTo(map)
+    .bindPopup(`<b style="font-size:13px;">${s.id} · ${s.name}</b><br><span style="color:#7eb8ff">${s.addr}</span><br><span style="color:#505878">${fmtHM(s.start)} – ${fmtHM(s.end)}</span><br><span style="color:#fde68a">${s.deals}</span>`);
 });
 
 // ── WATCH MARKERS ──
-// Icon shapes as tiny SVG (no emoji)
-const WATCH_ICONS_SVG = {
-  arena:  `<path d="M3 11V7a5 5 0 0 1 10 0v4" stroke="C" stroke-width="1.4"/><rect x="1" y="8" width="14" height="6" rx="1" stroke="C" stroke-width="1.3"/>`,
-  rec:    `<circle cx="8" cy="8" r="6.5" stroke="C" stroke-width="1.3"/><path d="M4 6.5Q8 4 12 6.5M4 9.5Q8 12 12 9.5" stroke="C" stroke-width="1.1" fill="none"/>`,
-  dorm:   `<rect x="2.5" y="6" width="11" height="8" rx="1" stroke="C" stroke-width="1.3"/><path d="M2.5 6L8 2.5 13.5 6" stroke="C" stroke-width="1.2"/><path d="M6.5 14v-3.5h3V14" stroke="C" stroke-width="1.1"/><rect x="4" y="8" width="2" height="2" rx=".3" fill="C" opacity=".7"/><rect x="10" y="8" width="2" height="2" rx=".3" fill="C" opacity=".7"/>`,
-  student:`<path d="M8 2.5L15 6 8 9.5 1 6Z" stroke="C" stroke-width="1.3" stroke-linejoin="round"/><path d="M4.5 7.5v3c0 1 1.5 2.5 3.5 2.5s3.5-1.5 3.5-2.5v-3" stroke="C" stroke-width="1.2"/>`,
-  ems:    `<rect x="2" y="4.5" width="12" height="8" rx="1.5" stroke="C" stroke-width="1.3"/><path d="M8 7v4M6 9h4" stroke="C" stroke-width="1.5" stroke-linecap="round"/><circle cx="4.5" cy="12.5" r=".9" fill="C"/><circle cx="11.5" cy="12.5" r=".9" fill="C"/>`,
+const WATCH_SVG_MAP={
+  arena: `<path d="M3 9V7a5 5 0 0 1 10 0v2" stroke="C" stroke-width="1.4"/><rect x="1" y="7.5" width="14" height="6" rx="1" stroke="C" stroke-width="1.3"/>`,
+  rec:   `<circle cx="8" cy="8" r="6.3" stroke="C" stroke-width="1.3"/><path d="M4 6Q8 3.5 12 6M4 10Q8 12.5 12 10" stroke="C" stroke-width="1.1" fill="none"/>`,
+  dorm:  `<rect x="2.5" y="6.5" width="11" height="7.5" rx="1" stroke="C" stroke-width="1.3"/><path d="M2 7L8 2.5 14 7" stroke="C" stroke-width="1.2"/><path d="M6.5 14V11h3v3" stroke="C" stroke-width="1.1"/><rect x="3.5" y="8.5" width="2" height="1.8" rx=".3" fill="C" opacity=".6"/><rect x="10.5" y="8.5" width="2" height="1.8" rx=".3" fill="C" opacity=".6"/>`,
+  student:`<path d="M8 2L15 5.5 8 9 1 5.5Z" stroke="C" stroke-width="1.3" stroke-linejoin="round"/><path d="M4.5 7.2v3.3c0 1.2 1.6 2.5 3.5 2.5s3.5-1.3 3.5-2.5V7.2" stroke="C" stroke-width="1.2"/>`,
+  ems:   `<rect x="1.5" y="5" width="13" height="7.5" rx="1.5" stroke="C" stroke-width="1.3"/><path d="M8 7.5v3M6.5 9h3" stroke="C" stroke-width="1.6" stroke-linecap="round"/><circle cx="4.5" cy="13" r=".9" fill="C"/><circle cx="11.5" cy="13" r=".9" fill="C"/>`,
 };
 WATCHES.forEach(w=>{
-  const svgBody=(WATCH_ICONS_SVG[w.iconKey]||'').replaceAll('"C"',`"${w.color}"`);
-  const icon=L.divIcon({
+  const body=(WATCH_SVG_MAP[w.iconKey]||'').replaceAll('"C"',`"${w.color}"`);
+  const mk=L.divIcon({
     html:`<div style="display:flex;flex-direction:column;align-items:center;gap:2px;pointer-events:none;">
-      <div style="width:22px;height:22px;background:rgba(7,9,15,.85);border:1px solid ${w.color}55;border-radius:4px;display:flex;align-items:center;justify-content:center;">
-        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg">${svgBody}</svg>
+      <div style="width:26px;height:26px;background:rgba(7,9,15,.9);border:1.5px solid ${w.color}66;border-radius:5px;display:flex;align-items:center;justify-content:center;">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">${body}</svg>
       </div>
-      <div style="background:rgba(7,9,15,.9);border:1px solid ${w.color}33;border-radius:2px;padding:1px 5px;white-space:nowrap;">
-        <div style="font-size:8.5px;font-weight:700;color:${w.color};font-family:system-ui;line-height:1.4;">${w.name}</div>
+      <div style="background:rgba(7,9,15,.92);border:1px solid ${w.color}33;border-radius:3px;padding:2px 6px;white-space:nowrap;">
+        <div style="font-size:10px;font-weight:700;color:${w.color};font-family:'Syne',sans-serif;line-height:1.4;">${w.name}</div>
       </div></div>`,
-    className:'',iconSize:[110,42],iconAnchor:[55,8]
+    className:'',iconSize:[130,48],iconAnchor:[65,10]
   });
-  L.marker([w.lat,w.lng],{icon,zIndexOffset:100}).addTo(map).bindPopup(w.popup);
+  L.marker([w.lat,w.lng],{icon:mk,zIndexOffset:100}).addTo(map)
+    .bindPopup(`<b>${w.name}</b><br><span style="color:#7eb8ff">${w.sub}</span>`);
 });
 
 // ── MAP LEGEND ──
 const legend=L.control({position:'bottomright'});
 legend.onAdd=()=>{
   const d=L.DomUtil.create('div');
-  d.style.cssText='background:rgba(7,9,15,.94);border:1px solid #1a2138;border-radius:4px;padding:8px 11px;font-family:\'DM Mono\',monospace;font-size:9.5px;color:#b8c2de;line-height:2;';
+  d.style.cssText='background:rgba(7,9,15,.94);border:1px solid #1e2640;border-radius:5px;padding:9px 12px;font-family:\'DM Mono\',monospace;font-size:10px;color:#ccd4ee;line-height:2;';
   d.innerHTML=`
-    <div style="font-size:8px;letter-spacing:1.2px;text-transform:uppercase;color:#333a55;margin-bottom:4px;">Legend</div>
-    <div style="display:flex;align-items:center;gap:6px;"><div style="width:12px;height:12px;border-radius:3px;background:#22c55e18;border:1px dashed #22c55e60;flex-shrink:0;"></div>Bar stop zone</div>
-    <div style="display:flex;align-items:center;gap:6px;"><div style="width:12px;height:12px;border-radius:3px;background:#f59e0b18;border:1px dashed #f59e0b60;flex-shrink:0;"></div>Watch zone</div>
-    <div style="display:flex;align-items:center;gap:6px;"><div style="width:20px;height:3px;border-top:2px solid #f97316;opacity:.5;"></div>Traffic flow</div>
-    <div style="display:flex;align-items:center;gap:6px;"><div style="width:6px;height:6px;border-radius:50%;background:#f97316;flex-shrink:0;"></div>Animated dot</div>`;
+    <div style="font-size:8px;letter-spacing:1.3px;text-transform:uppercase;color:#3a4260;margin-bottom:4px;">Legend</div>
+    <div style="display:flex;align-items:center;gap:7px;"><div style="width:13px;height:13px;border-radius:3px;background:#22c55e15;border:1px dashed #22c55e55;flex-shrink:0;"></div>Bar stop zone</div>
+    <div style="display:flex;align-items:center;gap:7px;"><div style="width:13px;height:13px;border-radius:3px;background:#f59e0b15;border:1px dashed #f59e0b55;flex-shrink:0;"></div>Watch zone</div>
+    <div style="display:flex;align-items:center;gap:7px;"><div style="width:7px;height:7px;border-radius:50%;background:#f97316;flex-shrink:0;"></div>Traffic flow dot</div>`;
   return d;
 };
 legend.addTo(map);
 
-// Fit + init animation
-map.fitBounds(allPts,{padding:[40,36]});
-map.whenReady(()=>{
-  initFlowDots();
-  drawArrowheads();
-  requestAnimationFrame(updateFlowDots);
-});
+map.fitBounds(allPts,{padding:[44,40]});
+map.whenReady(()=>requestAnimationFrame(animateFlows));
 
 // ── TIMELINE ──
-const tl=document.getElementById('tl-track');
+const tlTrack=document.getElementById('tl-track');
 STOPS.forEach(s=>{
   const seg=document.createElement('div');
   seg.className='tl-seg';seg.id=`tl-${s.id}`;
   seg.style.left=pct(toM(s.start))+'%';
   seg.style.width=(pct(toM(s.end))-pct(toM(s.start)))+'%';
-  seg.style.background=s.color+'48';
-  seg.style.borderTop=`1.5px solid ${s.color}88`;
-  seg.innerHTML=`<span>${s.id}</span>`;
-  tl.appendChild(seg);
+  seg.style.background=s.color+'44';
+  seg.style.borderTop=`2px solid ${s.color}88`;
+  seg.innerHTML=`<span>${s.id} ${s.name.split(' ')[0]}</span>`;
+  tlTrack.appendChild(seg);
+
+  const lbl=document.createElement('div');
+  lbl.className='tl-stop-lbl';lbl.id=`tl-lbl-${s.id}`;
+  lbl.style.left=(pct(toM(s.start))+(pct(toM(s.end))-pct(toM(s.start)))/2)+'%';
+  lbl.style.color=s.color;
+  lbl.textContent=fmtHM(s.start);
+  tlTrack.appendChild(lbl);
 });
-const nowLine=document.createElement('div');nowLine.className='tl-now';
-const nowLbl=document.createElement('div');nowLbl.className='tl-now-lbl';
-tl.appendChild(nowLine);tl.appendChild(nowLbl);
+const nowLine=document.createElement('div');nowLine.className='tl-now';nowLine.id='tl-now';
+const nowLbl=document.createElement('div');nowLbl.className='tl-now-lbl';nowLbl.id='tl-now-lbl';
+tlTrack.appendChild(nowLine);tlTrack.appendChild(nowLbl);
 
 // ── TICK ──
 function tick(){
   const now=new Date();
-  let h=now.getHours(),m=now.getMinutes(),s=now.getSeconds();
+  let h=now.getHours(),m=now.getMinutes(),sec=now.getSeconds();
   const ap=h>=12?'PM':'AM';
   if(h>12)h-=12;else if(h===0)h=12;
   document.getElementById('clock-hm').textContent=`${h}:${String(m).padStart(2,'0')}`;
-  document.getElementById('clock-s').textContent=`:${String(s).padStart(2,'0')}`;
+  document.getElementById('clock-s').textContent=`:${String(sec).padStart(2,'0')}`;
   document.getElementById('clock-ap').textContent=ap;
 
   const callout=document.getElementById('map-callout');
   callout.innerHTML='';
+
   STOPS.forEach(s=>{
     const el=document.getElementById(`stop-${s.id}`);
     const act=isActive(s),past=isPast(s);
@@ -650,29 +644,33 @@ function tick(){
     el.classList.toggle('past',past&&!act);
     document.getElementById(`pf-${s.id}`).style.width=progPct(s)+'%';
     markerMap[s.id].setIcon(makeStopIcon(s,act));
-    if(stopCircles[s.id]) stopCircles[s.id].setStyle({fillOpacity:act?.16:.10,opacity:act?.75:.50,weight:act?2:1.4});
+    if(stopCircles[s.id])stopCircles[s.id].setStyle({fillOpacity:act?.18:.10,opacity:act?.75:.45,weight:act?2.5:1.5});
+
     if(act){
       const chip=document.createElement('div');
       chip.className='callout-chip';
       chip.innerHTML=`<div class="cc-name" style="color:${s.color}">▸ ${s.id} · ${s.name}</div><div class="cc-sub">${s.addr} · Until ${fmtHM(s.end)}</div>`;
       callout.appendChild(chip);
     }
+
+    const seg=document.getElementById(`tl-${s.id}`);
+    seg.style.background=act?s.color+'72':s.color+'40';
+    seg.style.borderTop=`2px solid ${act?s.color:s.color+'60'}`;
+    seg.style.boxShadow=act?`0 0 8px ${s.color}66`:'none';
   });
 
   const cp=pct(nowM());
-  nowLine.style.left=cp+'%';nowLbl.style.left=cp+'%';
+  document.getElementById('tl-now').style.left=cp+'%';
+  document.getElementById('tl-now-lbl').style.left=cp+'%';
   let hh=now.getHours();const ap2=hh>=12?'PM':'AM';
   if(hh>12)hh-=12;else if(hh===0)hh=12;
-  nowLbl.textContent=`${hh}:${String(now.getMinutes()).padStart(2,'0')} ${ap2}`;
-
-  STOPS.forEach(s=>{
-    const seg=document.getElementById(`tl-${s.id}`);
-    const act=isActive(s);
-    seg.style.background=act?s.color+'70':s.color+'40';
-    seg.style.borderTop=`1.5px solid ${act?s.color:s.color+'60'}`;
-    seg.style.boxShadow=act?`0 0 5px ${s.color}55`:'none';
-  });
+  document.getElementById('tl-now-lbl').textContent=`${hh}:${String(now.getMinutes()).padStart(2,'0')} ${ap2}`;
 }
+
+// Ping animation for live badge dot
+const style=document.createElement('style');
+style.textContent=`@keyframes ping2{0%{opacity:1;transform:scale(1)}70%{opacity:.4;transform:scale(1.8)}100%{opacity:1;transform:scale(1)}}`;
+document.head.appendChild(style);
 
 setInterval(tick,1000);
 tick();
