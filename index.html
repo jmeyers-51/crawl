@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Clarkson Safety · Bar Crawl · May 6 2026</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0b0d14;
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    overflow: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: #11141f;
+    border-bottom: 1px solid #1e2235;
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .hdr-left { display: flex; align-items: center; gap: 12px; }
+  .live-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: #ef4444;
+    animation: blink 1.4s infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+  .hdr-title { font-size: 16px; font-weight: 700; letter-spacing: .3px; }
+  .hdr-sub { font-size: 12px; color: #5a6080; margin-top: 1px; }
+  #clock {
+    font-size: 36px; font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 2px;
+    color: #fff;
+  }
+
+  /* ── MAIN GRID ── */
+  .body {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    min-height: 0;
+  }
+
+  /* ── STOPS COLUMN ── */
+  .stops-col {
+    display: grid;
+    grid-template-rows: repeat(5, 1fr);
+    border-right: 1px solid #1e2235;
+    min-height: 0;
+  }
+  .stop {
+    border-bottom: 1px solid #1e2235;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    transition: background .4s;
+    position: relative;
+    overflow: hidden;
+  }
+  .stop:last-child { border-bottom: none; }
+  .stop.past { opacity: .35; }
+  .stop.active {
+    background: #0f1726;
+  }
+  .stop.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+  }
+  .stop-01.active::before { background: #22c55e; }
+  .stop-02.active::before { background: #3b82f6; }
+  .stop-03.active::before { background: #f97316; }
+  .stop-04.active::before { background: #ef4444; }
+  .stop-05.active::before { background: #a855f7; }
+
+  .stop-num {
+    font-size: 52px;
+    font-weight: 900;
+    color: #1e2235;
+    min-width: 64px;
+    line-height: 1;
+    transition: color .4s;
+  }
+  .stop.active .stop-num { color: #2a3050; }
+
+  .stop-body { flex: 1; min-width: 0; }
+  .stop-name { font-size: 22px; font-weight: 700; white-space: nowrap; }
+  .stop-addr { font-size: 12px; color: #4a5070; margin-top: 2px; }
+  .stop-time { font-size: 13px; color: #6b7280; margin-top: 4px; }
+  .stop-deals { font-size: 13px; margin-top: 3px; color: #93c5fd; }
+  .stop-note { font-size: 12px; color: #6b7280; margin-top: 3px; font-style: italic; }
+
+  .stop-right { text-align: right; flex-shrink: 0; }
+  .risk-pill {
+    display: inline-block;
+    font-size: 11px; font-weight: 700;
+    padding: 4px 12px; border-radius: 20px;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+  }
+  .risk-high { background: #7f1d1d; color: #fca5a5; }
+  .risk-med  { background: #78350f; color: #fde68a; }
+  .risk-low  { background: #14532d; color: #86efac; }
+
+  .status-pill {
+    display: block;
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    opacity: 0;
+    transition: opacity .4s;
+  }
+  .stop.active .status-pill { opacity: 1; }
+
+  /* Progress bar inside each stop */
+  .prog-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: #1e2235;
+  }
+  .prog-fill {
+    height: 100%;
+    width: 0%;
+    transition: width .8s ease;
+  }
+  .stop-01 .prog-fill { background: #22c55e; }
+  .stop-02 .prog-fill { background: #3b82f6; }
+  .stop-03 .prog-fill { background: #f97316; }
+  .stop-04 .prog-fill { background: #ef4444; }
+  .stop-05 .prog-fill { background: #a855f7; }
+
+  /* ── MAP COLUMN ── */
+  .map-col { position: relative; min-height: 0; }
+  #map { width: 100%; height: 100%; }
+
+  /* Active stop callout overlay on map */
+  #map-callout {
+    position: absolute;
+    top: 12px; left: 12px; right: 12px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    pointer-events: none;
+  }
+  .callout-chip {
+    background: rgba(15,20,38,.92);
+    border: 1px solid #2a3050;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    backdrop-filter: blur(4px);
+  }
+  .callout-chip .cc-name { font-weight: 700; color: #fff; font-size: 14px; }
+  .callout-chip .cc-sub  { color: #93c5fd; font-size: 12px; margin-top: 2px; }
+
+  /* ── FOOTER TIMELINE ── */
+  footer {
+    background: #11141f;
+    border-top: 1px solid #1e2235;
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .tl-label { font-size: 11px; color: #4a5070; min-width: 40px; }
+  .tl-track {
+    flex: 1;
+    height: 22px;
+    background: #1a1e2e;
+    border-radius: 4px;
+    position: relative;
+    overflow: visible;
+  }
+  .tl-seg {
+    position: absolute;
+    top: 0; height: 100%;
+    border-radius: 3px;
+    display: flex; align-items: center;
+    overflow: hidden;
+  }
+  .tl-seg span {
+    font-size: 10px; font-weight: 700;
+    color: rgba(255,255,255,.85);
+    padding: 0 6px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .tl-now-line {
+    position: absolute;
+    top: -6px; bottom: -6px;
+    width: 2px;
+    background: #ef4444;
+    border-radius: 1px;
+    z-index: 5;
+  }
+  .tl-now-label {
+    position: absolute;
+    top: -20px;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: #ef4444;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  /* Leaflet dark overrides */
+  .leaflet-container { background: #0f1220; }
+  .leaflet-popup-content-wrapper {
+    background: #11141f; color: #e0e4f0;
+    border: 1px solid #2a3050; border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.6);
+  }
+  .leaflet-popup-tip { background: #11141f; }
+  .leaflet-popup-content { font-family: inherit; font-size: 12px; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="hdr-left">
+    <div class="live-dot"></div>
+    <div>
+      <div class="hdr-title">Clarkson University Safety &amp; Security — Class of 2026 Bar Crawl</div>
+      <div class="hdr-sub">Wednesday May 6, 2026 · Potsdam, NY · Internal use only</div>
+    </div>
+  </div>
+  <div id="clock">--:-- --</div>
+</header>
+
+<!-- BODY -->
+<div class="body">
+
+  <!-- STOPS -->
+  <div class="stops-col" id="stops-col"></div>
+
+  <!-- MAP -->
+  <div class="map-col">
+    <div id="map"></div>
+    <div id="map-callout"></div>
+  </div>
+
+</div>
+
+<!-- FOOTER TIMELINE -->
+<footer>
+  <div class="tl-label">5 PM</div>
+  <div class="tl-track" id="tl-track"></div>
+  <div class="tl-label" style="text-align:right">2 AM</div>
+</footer>
+
+<script>
+const STOPS = [
+  {
+    id:'01', cls:'stop-01',
+    name:"Eben's Hearth",
+    addr:'115 Maple St',
+    lat:44.6694, lng:-74.9910,
+    start:[17,0], end:[19,30],
+    deals:"$5 PBR liters · $2 Jim Beam Honey shots",
+    note:"Opening rush — high energy, near campus",
+    risk:'med', color:'#22c55e'
+  },
+  {
+    id:'02', cls:'stop-02',
+    name:"Cactus Grill & Cantina",
+    addr:'11 Raymond St',
+    lat:44.6700, lng:-74.9865,
+    start:[19,30], end:[21,30],
+    deals:"$1 off margaritas · $5 Coronas",
+    note:"Mid-crawl peak — Raymond St transitions",
+    risk:'med', color:'#3b82f6'
+  },
+  {
+    id:'03', cls:'stop-03',
+    name:"Maxfields",
+    addr:'5–15 Market St',
+    lat:44.6708, lng:-74.9843,
+    start:[21,30], end:[23,30],
+    deals:"Kill-a-keg $4 · $5 pints",
+    note:"Late hour + cheap beer — monitor riverside deck",
+    risk:'high', color:'#f97316'
+  },
+  {
+    id:'04', cls:'stop-04',
+    name:"McDuff's Pub",
+    addr:'59 Market St',
+    lat:44.6714, lng:-74.9831,
+    start:[21,30], end:[23,30],
+    deals:"Mug night $10/$3 refill · $4 beers · Free shirt first 25",
+    note:"Concurrent with Maxfields — crowd surge at door",
+    risk:'high', color:'#ef4444'
+  },
+  {
+    id:'05', cls:'stop-05',
+    name:"The Circuit",
+    addr:'6 Elm St (2nd floor)',
+    lat:44.6718, lng:-74.9820,
+    start:[23,30], end:[26,0],
+    deals:"Tipsy Turtle punch $4 · $3 drafts",
+    note:"Dance club, most intoxicated — watch Elm St departures",
+    risk:'high', color:'#a855f7'
+  }
+];
+
+const TL_START = 17*60, TL_END = 26*60;
+function toM(hm){ return hm[0]*60+hm[1]; }
+function nowM(){
+  const n=new Date(); let h=n.getHours(),m=n.getMinutes();
+  if(h<4) h+=24; return h*60+m;
+}
+function pct(m){ return Math.max(0,Math.min(100,(m-TL_START)/(TL_END-TL_START)*100)); }
+function fmtHM(hm){
+  let h=hm[0]%24,m=hm[1]; const ap=h>=12?'PM':'AM';
+  if(h>12)h-=12; else if(h===0)h=12;
+  return `${h}:${String(m).padStart(2,'0')} ${ap}`;
+}
+function isActive(s){
+  const c=nowM(),st=toM(s.start),en=toM(s.end); return c>=st&&c<=en;
+}
+function isPast(s){ return nowM()>toM(s.end); }
+function progPct(s){
+  const c=nowM(),st=toM(s.start),en=toM(s.end);
+  if(c<st) return 0; if(c>en) return 100;
+  return Math.round((c-st)/(en-st)*100);
+}
+
+// ── BUILD STOP ROWS ──
+const stopsCol = document.getElementById('stops-col');
+STOPS.forEach(s => {
+  const div = document.createElement('div');
+  div.className = `stop ${s.cls}`;
+  div.id = `stop-${s.id}`;
+  div.innerHTML = `
+    <div class="stop-num">${s.id}</div>
+    <div class="stop-body">
+      <div class="stop-name">${s.name}</div>
+      <div class="stop-addr">${s.addr}</div>
+      <div class="stop-time">${fmtHM(s.start)} – ${fmtHM(s.end)}</div>
+      <div class="stop-deals">${s.deals}</div>
+      <div class="stop-note">${s.note}</div>
+    </div>
+    <div class="stop-right">
+      <span class="risk-pill risk-${s.risk==='high'?'high':'med'}">${s.risk==='high'?'HIGH RISK':'MEDIUM'}</span>
+      <span class="status-pill" id="sp-${s.id}" style="color:${s.color}">● ACTIVE NOW</span>
+    </div>
+    <div class="prog-bar"><div class="prog-fill" id="pf-${s.id}"></div></div>
+  `;
+  stopsCol.appendChild(div);
+});
+
+// ── MAP ──
+const map = L.map('map',{zoomControl:false,attributionControl:false})
+  .setView([44.6703,-74.9860],15);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+  subdomains:'abcd',maxZoom:19
+}).addTo(map);
+
+function makeIcon(s, active){
+  const sz = active ? 40 : 32;
+  const bg = active ? s.color : '#252a3a';
+  const bdr = active ? '#fff' : '#374151';
+  return L.divIcon({
+    html:`<div style="width:${sz}px;height:${sz}px;border-radius:50%;background:${bg};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:${active?14:12}px;border:2.5px solid ${bdr};box-shadow:0 2px 10px rgba(0,0,0,.6);">${s.id}</div>`,
+    className:'', iconSize:[sz,sz], iconAnchor:[sz/2,sz/2]
+  });
+}
+
+const markerMap = {};
+STOPS.forEach(s => {
+  markerMap[s.id] = L.marker([s.lat,s.lng],{icon:makeIcon(s,false)})
+    .addTo(map)
+    .bindPopup(`<b>${s.id} · ${s.name}</b><br><span style="color:#93c5fd;font-size:11px;">${s.addr} · ${fmtHM(s.start)}–${fmtHM(s.end)}</span><br><span style="color:#9ca3af;font-size:11px;">${s.note}</span>`);
+});
+
+L.polyline(STOPS.map(s=>[s.lat,s.lng]),{color:'#4a5580',weight:2,dashArray:'5 5',opacity:.7}).addTo(map);
+
+// Campus circle
+L.circle([44.663,-74.979],{radius:440,color:'#3b82f6',weight:1,fillColor:'#3b82f6',fillOpacity:.05,dashArray:'4 4'}).addTo(map);
+// EMS marker
+L.marker([44.6638,-74.9772],{icon:L.divIcon({html:'<div style="font-size:18px;line-height:1;">🚑</div>',className:'',iconSize:[22,22],iconAnchor:[11,11]})}).addTo(map)
+  .bindPopup('<b>Clarkson EMS / Student Health</b>');
+// Key chokepoint
+L.marker([44.6666,-74.9834],{icon:L.divIcon({html:'<div style="font-size:16px;line-height:1;">⚠️</div>',className:'',iconSize:[20,20],iconAnchor:[10,10]})}).addTo(map)
+  .bindPopup('<b>Maple St / Clarkson Ave chokepoint</b><br><span style="font-size:11px;color:#9ca3af;">Main walking corridor campus → downtown</span>');
+
+// ── TIMELINE ──
+const tl = document.getElementById('tl-track');
+STOPS.forEach(s => {
+  const seg = document.createElement('div');
+  seg.className='tl-seg'; seg.id=`tl-${s.id}`;
+  seg.style.left=pct(toM(s.start))+'%';
+  seg.style.width=(pct(toM(s.end))-pct(toM(s.start)))+'%';
+  seg.style.background=s.color+'99';
+  seg.innerHTML=`<span>${s.name.split(' ')[0]}</span>`;
+  tl.appendChild(seg);
+});
+const nowLine = document.createElement('div'); nowLine.className='tl-now-line';
+const nowLbl  = document.createElement('div'); nowLbl.className='tl-now-label';
+tl.appendChild(nowLine); tl.appendChild(nowLbl);
+
+// ── TICK ──
+function tick(){
+  const now = new Date();
+  let h=now.getHours(), m=now.getMinutes();
+  const ap=h>=12?'PM':'AM';
+  if(h>12)h-=12; else if(h===0)h=12;
+  document.getElementById('clock').textContent=`${h}:${String(m).padStart(2,'0')} ${ap}`;
+
+  const active=STOPS.filter(isActive);
+  const callout=document.getElementById('map-callout');
+  callout.innerHTML='';
+
+  STOPS.forEach(s=>{
+    const el=document.getElementById(`stop-${s.id}`);
+    const act=isActive(s), past=isPast(s);
+    el.classList.toggle('active',act);
+    el.classList.toggle('past',past&&!act);
+    document.getElementById(`pf-${s.id}`).style.width=progPct(s)+'%';
+    markerMap[s.id].setIcon(makeIcon(s,act));
+
+    if(act){
+      const chip=document.createElement('div');
+      chip.className='callout-chip';
+      chip.innerHTML=`<div class="cc-name" style="color:${s.color}">● ${s.id} · ${s.name}</div><div class="cc-sub">${s.addr} · Until ${fmtHM(s.end)} · ${s.deals}</div>`;
+      callout.appendChild(chip);
+    }
+  });
+
+  // Timeline now line
+  const cp=pct(nowM());
+  nowLine.style.left=cp+'%';
+  nowLbl.style.left=cp+'%';
+  const ap2=now.getHours()>=12?'PM':'AM';
+  let hh=now.getHours(); if(hh>12)hh-=12; else if(hh===0)hh=12;
+  nowLbl.textContent=`${hh}:${String(now.getMinutes()).padStart(2,'0')} ${ap2}`;
+
+  // Active timeline segments glow
+  STOPS.forEach(s=>{
+    const seg=document.getElementById(`tl-${s.id}`);
+    seg.style.background=isActive(s)?s.color:s.color+'66';
+    seg.style.boxShadow=isActive(s)?`0 0 8px ${s.color}88`:'none';
+  });
+}
+
+setInterval(tick,1000);
+tick();
+</script>
+</body>
+</html>
