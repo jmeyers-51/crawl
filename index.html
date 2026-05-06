@@ -268,7 +268,7 @@ const STOPS = [
     id:'01', cls:'stop-01',
     name:"Eben's Hearth",
     addr:'115 Maple St',
-    lat:44.6694, lng:-74.9910,
+    lat:44.6672, lng:-74.9889,
     start:[17,0], end:[19,30],
     deals:"$5 PBR liters · $2 Jim Beam Honey shots",
     note:"Opening rush — high energy, near campus",
@@ -278,7 +278,7 @@ const STOPS = [
     id:'02', cls:'stop-02',
     name:"Cactus Grill & Cantina",
     addr:'11 Raymond St',
-    lat:44.6700, lng:-74.9865,
+    lat:44.6714, lng:-74.9858,
     start:[19,30], end:[21,30],
     deals:"$1 off margaritas · $5 Coronas",
     note:"Mid-crawl peak — Raymond St transitions",
@@ -288,7 +288,7 @@ const STOPS = [
     id:'03', cls:'stop-03',
     name:"Maxfields",
     addr:'5–15 Market St',
-    lat:44.6708, lng:-74.9843,
+    lat:44.6705, lng:-74.9833,
     start:[21,30], end:[23,30],
     deals:"Kill-a-keg $4 · $5 pints",
     note:"Late hour + cheap beer — monitor riverside deck",
@@ -298,7 +298,7 @@ const STOPS = [
     id:'04', cls:'stop-04',
     name:"McDuff's Pub",
     addr:'59 Market St',
-    lat:44.6714, lng:-74.9831,
+    lat:44.6698, lng:-74.9826,
     start:[21,30], end:[23,30],
     deals:"Mug night $10/$3 refill · $4 beers · Free shirt first 25",
     note:"Concurrent with Maxfields — crowd surge at door",
@@ -308,7 +308,7 @@ const STOPS = [
     id:'05', cls:'stop-05',
     name:"The Circuit",
     addr:'6 Elm St (2nd floor)',
-    lat:44.6718, lng:-74.9820,
+    lat:44.6709, lng:-74.9820,
     start:[23,30], end:[26,0],
     deals:"Tipsy Turtle punch $4 · $3 drafts",
     note:"Dance club, most intoxicated — watch Elm St departures",
@@ -364,7 +364,7 @@ STOPS.forEach(s => {
 
 // ── MAP ──
 const map = L.map('map',{zoomControl:false,attributionControl:false})
-  .setView([44.6703,-74.9860],15);
+  .setView([44.6695,-74.9845],15);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
   subdomains:'abcd',maxZoom:19
 }).addTo(map);
@@ -389,12 +389,12 @@ STOPS.forEach(s => {
 L.polyline(STOPS.map(s=>[s.lat,s.lng]),{color:'#4a5580',weight:2,dashArray:'5 5',opacity:.7}).addTo(map);
 
 // Campus circle
-L.circle([44.663,-74.979],{radius:440,color:'#3b82f6',weight:1,fillColor:'#3b82f6',fillOpacity:.05,dashArray:'4 4'}).addTo(map);
+L.circle([44.6628,-74.9793],{radius:440,color:'#3b82f6',weight:1,fillColor:'#3b82f6',fillOpacity:.05,dashArray:'4 4'}).addTo(map);
 // EMS marker
-L.marker([44.6638,-74.9772],{icon:L.divIcon({html:'<div style="font-size:18px;line-height:1;">🚑</div>',className:'',iconSize:[22,22],iconAnchor:[11,11]})}).addTo(map)
+L.marker([44.6635,-74.9776],{icon:L.divIcon({html:'<div style="font-size:18px;line-height:1;">🚑</div>',className:'',iconSize:[22,22],iconAnchor:[11,11]})}).addTo(map)
   .bindPopup('<b>Clarkson EMS / Student Health</b>');
 // Key chokepoint
-L.marker([44.6666,-74.9834],{icon:L.divIcon({html:'<div style="font-size:16px;line-height:1;">⚠️</div>',className:'',iconSize:[20,20],iconAnchor:[10,10]})}).addTo(map)
+L.marker([44.6660,-74.9838],{icon:L.divIcon({html:'<div style="font-size:16px;line-height:1;">⚠️</div>',className:'',iconSize:[20,20],iconAnchor:[10,10]})}).addTo(map)
   .bindPopup('<b>Maple St / Clarkson Ave chokepoint</b><br><span style="font-size:11px;color:#9ca3af;">Main walking corridor campus → downtown</span>');
 
 // ── TIMELINE ──
