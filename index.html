@@ -7,178 +7,232 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap');
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --c-bg:     #080a10;
+    --c-panel:  #0d1018;
+    --c-border: #161b28;
+    --c-muted:  #3a4060;
+    --c-text:   #c8d0e8;
+    --c-dim:    #4a5070;
+    --stop-01: #22c55e;
+    --stop-02: #3b82f6;
+    --stop-03: #f97316;
+    --stop-04: #ef4444;
+    --stop-05: #a855f7;
+  }
+
   body {
-    background: #0b0d14;
-    color: #fff;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--c-bg);
+    color: var(--c-text);
+    font-family: 'DM Mono', monospace;
     height: 100vh;
     display: grid;
-    grid-template-rows: auto 1fr auto;
+    grid-template-rows: 56px 1fr 40px;
     overflow: hidden;
   }
 
-  /* ── HEADER ── */
+  /* HEADER */
   header {
-    background: #11141f;
-    border-bottom: 1px solid #1e2235;
-    padding: 10px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    background: var(--c-panel);
+    border-bottom: 1px solid var(--c-border);
+    padding: 0 20px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
   }
-  .hdr-left { display: flex; align-items: center; gap: 12px; }
+  .hdr-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
   .live-dot {
-    width: 10px; height: 10px; border-radius: 50%;
-    background: #ef4444;
+    flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%;
+    background: #ef4444; box-shadow: 0 0 6px #ef4444;
     animation: blink 1.4s infinite;
   }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
-  .hdr-title { font-size: 16px; font-weight: 700; letter-spacing: .3px; }
-  .hdr-sub { font-size: 12px; color: #5a6080; margin-top: 1px; }
+  @keyframes blink { 0%,100%{opacity:1;box-shadow:0 0 6px #ef4444} 50%{opacity:.3;box-shadow:none} }
+  .hdr-title {
+    font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 800;
+    letter-spacing: .4px; color: #fff; white-space: nowrap;
+  }
+  .hdr-sep { color: var(--c-muted); }
+  .hdr-sub { font-size: 10px; color: var(--c-dim); white-space: nowrap; }
   #clock {
-    font-size: 36px; font-weight: 800;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 2px;
-    color: #fff;
+    font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800;
+    font-variant-numeric: tabular-nums; letter-spacing: 1px; color: #fff; flex-shrink: 0;
   }
 
-  /* ── MAIN GRID ── */
+  /* BODY GRID */
   .body {
     display: grid;
-    grid-template-columns: 1fr 420px;
-    min-height: 0;
+    grid-template-columns: 290px 1fr;
+    min-height: 0; overflow: hidden;
   }
 
-  /* ── STOPS COLUMN ── */
-  .stops-col {
-    display: grid;
-    grid-template-rows: repeat(5, 1fr);
-    border-right: 1px solid #1e2235;
-    min-height: 0;
+  /* LEFT COLUMN */
+  .left-col {
+    display: flex; flex-direction: column;
+    border-right: 1px solid var(--c-border);
+    min-height: 0; overflow: hidden;
   }
+
+  .section-label {
+    font-size: 9px; font-weight: 500; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--c-dim);
+    padding: 8px 14px 6px;
+    border-bottom: 1px solid var(--c-border);
+    flex-shrink: 0;
+  }
+
+  /* STOPS LIST */
+  .stops-list { display: flex; flex-direction: column; flex: 3; min-height: 0; }
+
   .stop {
-    border-bottom: 1px solid #1e2235;
-    padding: 0 20px;
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    transition: background .4s;
-    position: relative;
-    overflow: hidden;
+    flex: 1; border-bottom: 1px solid var(--c-border);
+    padding: 0 12px 0 11px;
+    display: flex; align-items: center; gap: 10px;
+    position: relative; overflow: hidden;
+    transition: background .3s; min-height: 0;
   }
   .stop:last-child { border-bottom: none; }
-  .stop.past { opacity: .35; }
-  .stop.active { background: #0f1726; }
-  .stop.active::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 4px;
+  .stop.past { opacity: .28; }
+  .stop.active { background: rgba(255,255,255,.022); }
+
+  .stop::before {
+    content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+    opacity:.25; transition:opacity .3s;
   }
-  .stop-01.active::before { background: #22c55e; }
-  .stop-02.active::before { background: #3b82f6; }
-  .stop-03.active::before { background: #f97316; }
-  .stop-04.active::before { background: #ef4444; }
-  .stop-05.active::before { background: #a855f7; }
+  .stop.active::before { opacity:1; }
+  .stop-01::before { background:var(--stop-01); }
+  .stop-02::before { background:var(--stop-02); }
+  .stop-03::before { background:var(--stop-03); }
+  .stop-04::before { background:var(--stop-04); }
+  .stop-05::before { background:var(--stop-05); }
 
-  .stop-num {
-    font-size: 52px; font-weight: 900;
-    color: #1e2235; min-width: 64px;
-    line-height: 1; transition: color .4s;
+  .stop-badge {
+    flex-shrink:0; width:26px; height:26px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Syne',sans-serif; font-size:11px; font-weight:800; color:#fff;
+    background:var(--c-border); border:1.5px solid var(--c-muted);
+    transition:all .3s;
   }
-  .stop.active .stop-num { color: #2a3050; }
+  .stop-01.active .stop-badge { background:var(--stop-01);border-color:var(--stop-01);box-shadow:0 0 10px #22c55e55; }
+  .stop-02.active .stop-badge { background:var(--stop-02);border-color:var(--stop-02);box-shadow:0 0 10px #3b82f655; }
+  .stop-03.active .stop-badge { background:var(--stop-03);border-color:var(--stop-03);box-shadow:0 0 10px #f9731655; }
+  .stop-04.active .stop-badge { background:var(--stop-04);border-color:var(--stop-04);box-shadow:0 0 10px #ef444455; }
+  .stop-05.active .stop-badge { background:var(--stop-05);border-color:var(--stop-05);box-shadow:0 0 10px #a855f755; }
 
-  .stop-body { flex: 1; min-width: 0; }
-  .stop-name { font-size: 22px; font-weight: 700; white-space: nowrap; }
-  .stop-addr { font-size: 12px; color: #4a5070; margin-top: 2px; }
-  .stop-time { font-size: 13px; color: #6b7280; margin-top: 4px; }
-  .stop-deals { font-size: 13px; margin-top: 3px; color: #93c5fd; }
-  .stop-note { font-size: 12px; color: #6b7280; margin-top: 3px; font-style: italic; }
+  .stop-body { flex:1; min-width:0; }
+  .stop-name {
+    font-family:'Syne',sans-serif; font-size:12px; font-weight:700;
+    color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .stop-addr { font-size:9px; color:var(--c-dim); margin-top:1px; }
+  .stop-time { font-size:9px; color:var(--c-muted); margin-top:2px; }
+  .stop-deals { font-size:9px; color:#93c5fd; margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
-  .stop-right { text-align: right; flex-shrink: 0; }
+  .stop-right { flex-shrink:0; text-align:right; }
   .risk-pill {
-    display: inline-block;
-    font-size: 11px; font-weight: 700;
-    padding: 4px 12px; border-radius: 20px;
-    letter-spacing: .5px; text-transform: uppercase;
+    font-size:8px; font-weight:500; letter-spacing:.8px; text-transform:uppercase;
+    padding:2px 6px; border-radius:20px; display:inline-block;
   }
-  .risk-high { background: #7f1d1d; color: #fca5a5; }
-  .risk-med  { background: #78350f; color: #fde68a; }
-  .risk-low  { background: #14532d; color: #86efac; }
+  .risk-high { background:#3f0f0f; color:#fca5a5; border:1px solid #7f1d1d; }
+  .risk-med  { background:#3b1c06; color:#fde68a; border:1px solid #78350f; }
 
-  .status-pill {
-    display: block; margin-top: 8px;
-    font-size: 13px; font-weight: 700;
-    color: #fff; opacity: 0; transition: opacity .4s;
+  .active-tag {
+    display:block; margin-top:4px; font-size:8px; font-weight:500;
+    letter-spacing:.5px; text-transform:uppercase; opacity:0; transition:opacity .3s;
   }
-  .stop.active .status-pill { opacity: 1; }
+  .stop.active .active-tag { opacity:1; }
 
-  .prog-bar {
-    position: absolute; bottom: 0; left: 0; right: 0;
-    height: 3px; background: #1e2235;
+  .prog-bar { position:absolute; bottom:0; left:0; right:0; height:2px; }
+  .prog-fill { height:100%; width:0%; transition:width 1s ease; opacity:.55; }
+  .stop-01 .prog-fill { background:var(--stop-01); }
+  .stop-02 .prog-fill { background:var(--stop-02); }
+  .stop-03 .prog-fill { background:var(--stop-03); }
+  .stop-04 .prog-fill { background:var(--stop-04); }
+  .stop-05 .prog-fill { background:var(--stop-05); }
+
+  /* WATCH ZONES LIST */
+  .watch-list { display:flex; flex-direction:column; flex:2; min-height:0; }
+
+  .watch-item {
+    flex:1; border-bottom:1px solid var(--c-border);
+    padding:0 12px; display:flex; align-items:center; gap:9px; min-height:0;
   }
-  .prog-fill { height: 100%; width: 0%; transition: width .8s ease; }
-  .stop-01 .prog-fill { background: #22c55e; }
-  .stop-02 .prog-fill { background: #3b82f6; }
-  .stop-03 .prog-fill { background: #f97316; }
-  .stop-04 .prog-fill { background: #ef4444; }
-  .stop-05 .prog-fill { background: #a855f7; }
+  .watch-item:last-child { border-bottom:none; }
 
-  /* ── MAP COLUMN ── */
-  .map-col { position: relative; min-height: 0; }
-  #map { width: 100%; height: 100%; }
+  .watch-dot {
+    flex-shrink:0; width:8px; height:8px; border-radius:50%;
+  }
+  .watch-body { flex:1; min-width:0; }
+  .watch-name {
+    font-family:'Syne',sans-serif; font-size:11px; font-weight:700; color:#fff;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .watch-sub { font-size:9px; color:var(--c-dim); margin-top:1px; }
+  .watch-badge {
+    font-size:8px; letter-spacing:.5px; text-transform:uppercase;
+    padding:2px 6px; border-radius:20px; border:1px solid; flex-shrink:0;
+    white-space:nowrap;
+  }
+
+  /* MAP */
+  .map-col { position:relative; min-height:0; }
+  #map { width:100%; height:100%; }
 
   #map-callout {
-    position: absolute; top: 12px; left: 12px; right: 12px;
-    z-index: 1000; display: flex; flex-direction: column;
-    gap: 6px; pointer-events: none;
+    position:absolute; top:10px; left:10px; z-index:1000;
+    display:flex; flex-direction:column; gap:5px;
+    pointer-events:none; max-width:240px;
   }
   .callout-chip {
-    background: rgba(15,20,38,.92); border: 1px solid #2a3050;
-    border-radius: 8px; padding: 8px 12px; font-size: 13px;
-    backdrop-filter: blur(4px);
+    background:rgba(8,10,16,.92); border:1px solid #1e2840;
+    border-radius:5px; padding:7px 10px; backdrop-filter:blur(8px);
   }
-  .callout-chip .cc-name { font-weight: 700; color: #fff; font-size: 14px; }
-  .callout-chip .cc-sub  { color: #93c5fd; font-size: 12px; margin-top: 2px; }
+  .callout-chip .cc-name { font-family:'Syne',sans-serif; font-weight:700; font-size:12px; color:#fff; }
+  .callout-chip .cc-sub  { font-size:10px; color:#93c5fd; margin-top:2px; }
 
-  /* ── FOOTER TIMELINE ── */
+  /* FOOTER TIMELINE */
   footer {
-    background: #11141f; border-top: 1px solid #1e2235;
-    padding: 10px 24px; display: flex; align-items: center; gap: 16px;
+    background:var(--c-panel); border-top:1px solid var(--c-border);
+    padding:0 20px; display:flex; align-items:center; gap:12px;
   }
-  .tl-label { font-size: 11px; color: #4a5070; min-width: 40px; }
+  .tl-label { font-size:9px; color:var(--c-dim); min-width:28px; }
   .tl-track {
-    flex: 1; height: 22px; background: #1a1e2e;
-    border-radius: 4px; position: relative; overflow: visible;
+    flex:1; height:14px; background:#0a0c14;
+    border:1px solid var(--c-border); border-radius:3px;
+    position:relative; overflow:visible;
   }
   .tl-seg {
-    position: absolute; top: 0; height: 100%;
-    border-radius: 3px; display: flex; align-items: center; overflow: hidden;
+    position:absolute; top:0; height:100%; border-radius:2px;
+    display:flex; align-items:center; overflow:hidden; transition:all .3s;
   }
   .tl-seg span {
-    font-size: 10px; font-weight: 700;
-    color: rgba(255,255,255,.85); padding: 0 6px;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    font-size:8px; font-weight:500; color:rgba(255,255,255,.8);
+    padding:0 4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
   .tl-now-line {
-    position: absolute; top: -6px; bottom: -6px;
-    width: 2px; background: #ef4444; border-radius: 1px; z-index: 5;
+    position:absolute; top:-6px; bottom:-6px; width:1.5px;
+    background:#ef4444; z-index:5;
   }
   .tl-now-label {
-    position: absolute; top: -20px; transform: translateX(-50%);
-    font-size: 10px; color: #ef4444; font-weight: 700; white-space: nowrap;
+    position:absolute; top:-18px; transform:translateX(-50%);
+    font-size:9px; color:#ef4444; font-weight:500; white-space:nowrap;
   }
 
-  /* Leaflet dark overrides */
-  .leaflet-container { background: #0f1220; }
+  /* Leaflet */
+  .leaflet-container { background:#080a10; }
   .leaflet-popup-content-wrapper {
-    background: #11141f; color: #e0e4f0;
-    border: 1px solid #2a3050; border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0,0,0,.6);
+    background:#0d1018; color:#c8d0e8;
+    border:1px solid #1e2840; border-radius:6px;
+    box-shadow:0 4px 24px rgba(0,0,0,.7);
+    font-family:'DM Mono',monospace;
   }
-  .leaflet-popup-tip { background: #11141f; }
-  .leaflet-popup-content { font-family: inherit; font-size: 12px; line-height: 1.6; }
+  .leaflet-popup-tip { background:#0d1018; }
+  .leaflet-popup-content { font-size:11px; line-height:1.7; }
+  .leaflet-control-zoom a {
+    background:#0d1018!important; color:#c8d0e8!important; border-color:#1e2840!important;
+  }
+  .leaflet-control-zoom a:hover { background:#161b28!important; }
 </style>
 </head>
 <body>
@@ -186,16 +240,20 @@
 <header>
   <div class="hdr-left">
     <div class="live-dot"></div>
-    <div>
-      <div class="hdr-title">Clarkson University Safety &amp; Security — Class of 2026 Bar Crawl</div>
-      <div class="hdr-sub">Wednesday May 6, 2026 · Potsdam, NY · Internal use only</div>
-    </div>
+    <div class="hdr-title">Clarkson Safety &amp; Security</div>
+    <div class="hdr-sep">·</div>
+    <div class="hdr-sub">Class of 2026 Bar Crawl &nbsp;·&nbsp; May 6, 2026 &nbsp;·&nbsp; Potsdam, NY &nbsp;·&nbsp; Internal use only</div>
   </div>
   <div id="clock">--:-- --</div>
 </header>
 
 <div class="body">
-  <div class="stops-col" id="stops-col"></div>
+  <div class="left-col">
+    <div class="section-label">Bar Crawl Stops</div>
+    <div class="stops-list" id="stops-col"></div>
+    <div class="section-label" style="border-top:1px solid var(--c-border);">Watch Zones · Foot Traffic</div>
+    <div class="watch-list" id="watch-col"></div>
+  </div>
   <div class="map-col">
     <div id="map"></div>
     <div id="map-callout"></div>
@@ -209,311 +267,202 @@
 </footer>
 
 <script>
-// ── PRECISE COORDINATES from Google Maps URLs ──
 const STOPS = [
-  {
-    id:'01', cls:'stop-01',
-    name:"Eben's Hearth",
-    addr:'115 Maple St',
-    lat: 44.6675885, lng: -75.0012585,   // from Maps URL
-    start:[17,0], end:[19,30],
-    deals:"$5 PBR liters · $2 Jim Beam Honey shots",
-    note:"Opening rush — high energy, near campus",
-    risk:'med', color:'#22c55e'
-  },
-  {
-    id:'02', cls:'stop-02',
-    name:"Cactus Grill & Cantina",
-    addr:'11 Raymond St',
-    lat: 44.6696393, lng: -74.9882468,   // from Maps URL
-    start:[19,30], end:[21,30],
-    deals:"$1 off margaritas · $5 Coronas",
-    note:"Mid-crawl peak — Raymond St transitions",
-    risk:'med', color:'#3b82f6'
-  },
-  {
-    id:'03', cls:'stop-03',
-    name:"Maxfields",
-    addr:'15 Market St',
-    lat: 44.6687557, lng: -74.9871997,   // from Maps URL
-    start:[21,30], end:[23,30],
-    deals:"Kill-a-keg $4 · $5 pints",
-    note:"Late hour + cheap beer — monitor riverside deck",
-    risk:'high', color:'#f97316'
-  },
-  {
-    id:'04', cls:'stop-04',
-    name:"McDuff's Pub",
-    addr:'59 Market St',
-    lat: 44.6704855, lng: -74.9872280,   // from Maps URL
-    start:[21,30], end:[23,30],
-    deals:"Mug night $10/$3 refill · $4 beers · Free shirt first 25",
-    note:"Concurrent with Maxfields — crowd surge at door",
-    risk:'high', color:'#ef4444'
-  },
-  {
-    id:'05', cls:'stop-05',
-    name:"The Circuit",
-    addr:'6 Elm St (2nd floor)',
-    lat: 44.6701962, lng: -74.9861513,   // from Maps URL
-    start:[23,30], end:[26,0],
-    deals:"Tipsy Turtle punch $4 · $3 drafts",
-    note:"Dance club, most intoxicated — watch Elm St departures",
-    risk:'high', color:'#a855f7'
-  }
+  { id:'01', cls:'stop-01', name:"Eben's Hearth",        addr:'115 Maple St',       lat:44.6675885, lng:-75.0012585, start:[17,0],  end:[19,30], deals:"$5 PBR liters · $2 Jim Beam Honey shots", risk:'med',  color:'#22c55e', zR:90  },
+  { id:'02', cls:'stop-02', name:"Cactus Grill & Cantina",addr:'11 Raymond St',      lat:44.6696393, lng:-74.9882468, start:[19,30], end:[21,30], deals:"$1 off margaritas · $5 Coronas",           risk:'med',  color:'#3b82f6', zR:85  },
+  { id:'03', cls:'stop-03', name:"Maxfields",             addr:'15 Market St',       lat:44.6687557, lng:-74.9871997, start:[21,30], end:[23,30], deals:"Kill-a-keg $4 · $5 pints",                  risk:'high', color:'#f97316', zR:85  },
+  { id:'04', cls:'stop-04', name:"McDuff's Pub",          addr:'59 Market St',       lat:44.6704855, lng:-74.9872280, start:[21,30], end:[23,30], deals:"Mug night $10/$3 refill · $4 beers",        risk:'high', color:'#ef4444', zR:85  },
+  { id:'05', cls:'stop-05', name:"The Circuit",           addr:'6 Elm St, 2nd floor',lat:44.6701962, lng:-74.9861513, start:[23,30], end:[26,0],  deals:"Tipsy Turtle $4 · $3 drafts",               risk:'high', color:'#a855f7', zR:85  }
 ];
 
-// ── CAMPUS LANDMARKS (precise coords provided) ──
-const LANDMARKS = [
-  {
-    lat: 44.664515, lng: -75.001517,
-    emoji: '🏒', label: 'Cheel Arena', sub: 'Golden Knight Statue',
-    popup: '<b>Cheel Arena / Golden Knight Statue</b><br>Clarkson University · Primary student congregation point'
-  },
-  {
-    lat: 44.665989, lng: -74.991449,
-    emoji: '🏀', label: 'Walker Arena', sub: 'Recreation center',
-    popup: '<b>Walker Arena</b><br>Clarkson University · Recreation / post-crawl congregation'
-  },
-  {
-    lat: 44.663001, lng: -74.998398,
-    emoji: '🚑', label: 'Campus Safety', sub: 'EMS / Security',
-    popup: '<b>Clarkson Campus Safety &amp; EMS</b><br>On-campus emergency services · 24/7'
-  }
+const WATCHES = [
+  { id:'W1', name:'Cheel Arena',         sub:'Golden Knight · primary departure',   lat:44.664515,  lng:-75.001517, color:'#f59e0b', intensity:'high', zR:130, emoji:'🏒', popup:'<b>Cheel Arena / Golden Knight</b><br>Primary student departure point' },
+  { id:'W2', name:'Walker Arena',        sub:'Recreation · pre-crawl gatherings',   lat:44.665989,  lng:-74.991449, color:'#f59e0b', intensity:'high', zR:120, emoji:'🏀', popup:'<b>Walker Arena</b><br>Pre-crawl congregation & rec center' },
+  { id:'W3', name:'Hamlin–Powers Hall',  sub:'Dorm corridor · outbound traffic',    lat:44.665084,  lng:-74.995035, color:'#fb923c', intensity:'med',  zR:110, emoji:'🏠', popup:'<b>Hamlin–Powers Hall</b><br>Dorm corridor — monitor outbound students' },
+  { id:'W4', name:'TAC Student Center',  sub:'Transit & return gathering node',     lat:44.661699,  lng:-74.997914, color:'#fb923c', intensity:'med',  zR:105, emoji:'🎓', popup:'<b>TAC — Student Center</b><br>Transit node, campus edge' },
+  { id:'W5', name:'Campus Safety / EMS', sub:'Emergency response · 24 hr',         lat:44.663001,  lng:-74.998398, color:'#22d3ee', intensity:'ems',  zR:75,  emoji:'🚑', popup:'<b>Campus Safety &amp; EMS</b><br>24/7 emergency services' }
 ];
 
-// ── HELPERS ──
-const TL_START = 17*60, TL_END = 26*60;
-function toM(hm){ return hm[0]*60+hm[1]; }
-function nowM(){
-  const n=new Date(); let h=n.getHours(), m=n.getMinutes();
-  if(h<4) h+=24; return h*60+m;
-}
-function pct(m){ return Math.max(0,Math.min(100,(m-TL_START)/(TL_END-TL_START)*100)); }
-function fmtHM(hm){
-  let h=hm[0]%24, m=hm[1]; const ap=h>=12?'PM':'AM';
-  if(h>12)h-=12; else if(h===0)h=12;
-  return `${h}:${String(m).padStart(2,'0')} ${ap}`;
-}
-function isActive(s){
-  const c=nowM(), st=toM(s.start), en=toM(s.end); return c>=st&&c<=en;
-}
-function isPast(s){ return nowM()>toM(s.end); }
-function progPct(s){
-  const c=nowM(), st=toM(s.start), en=toM(s.end);
-  if(c<st) return 0; if(c>en) return 100;
-  return Math.round((c-st)/(en-st)*100);
-}
+const TL_START=17*60, TL_END=26*60;
+function toM(hm){return hm[0]*60+hm[1];}
+function nowM(){const n=new Date();let h=n.getHours(),m=n.getMinutes();if(h<4)h+=24;return h*60+m;}
+function pct(m){return Math.max(0,Math.min(100,(m-TL_START)/(TL_END-TL_START)*100));}
+function fmtHM(hm){let h=hm[0]%24,m=hm[1];const ap=h>=12?'PM':'AM';if(h>12)h-=12;else if(h===0)h=12;return`${h}:${String(m).padStart(2,'0')} ${ap}`;}
+function isActive(s){const c=nowM(),st=toM(s.start),en=toM(s.end);return c>=st&&c<=en;}
+function isPast(s){return nowM()>toM(s.end);}
+function progPct(s){const c=nowM(),st=toM(s.start),en=toM(s.end);if(c<st)return 0;if(c>en)return 100;return Math.round((c-st)/(en-st)*100);}
 
-// ── BUILD STOP ROWS ──
-const stopsCol = document.getElementById('stops-col');
-STOPS.forEach(s => {
-  const div = document.createElement('div');
-  div.className = `stop ${s.cls}`;
-  div.id = `stop-${s.id}`;
-  div.innerHTML = `
-    <div class="stop-num">${s.id}</div>
+// Build stops
+const stopsCol=document.getElementById('stops-col');
+STOPS.forEach(s=>{
+  const d=document.createElement('div');
+  d.className=`stop ${s.cls}`; d.id=`stop-${s.id}`;
+  d.innerHTML=`
+    <div class="stop-badge">${s.id}</div>
     <div class="stop-body">
       <div class="stop-name">${s.name}</div>
       <div class="stop-addr">${s.addr}</div>
       <div class="stop-time">${fmtHM(s.start)} – ${fmtHM(s.end)}</div>
       <div class="stop-deals">${s.deals}</div>
-      <div class="stop-note">${s.note}</div>
     </div>
     <div class="stop-right">
-      <span class="risk-pill risk-${s.risk==='high'?'high':'med'}">${s.risk==='high'?'HIGH RISK':'MEDIUM'}</span>
-      <span class="status-pill" id="sp-${s.id}" style="color:${s.color}">● ACTIVE NOW</span>
+      <span class="risk-pill risk-${s.risk}">${s.risk==='high'?'HIGH':'MED'}</span>
+      <span class="active-tag" id="at-${s.id}" style="color:${s.color}">● live</span>
     </div>
-    <div class="prog-bar"><div class="prog-fill" id="pf-${s.id}"></div></div>
-  `;
-  stopsCol.appendChild(div);
+    <div class="prog-bar"><div class="prog-fill" id="pf-${s.id}"></div></div>`;
+  stopsCol.appendChild(d);
 });
 
-// ── MAP ──
-// Fit bounds around all stops + landmarks
-const allLats = [...STOPS.map(s=>s.lat), ...LANDMARKS.map(l=>l.lat)];
-const allLngs = [...STOPS.map(s=>s.lng), ...LANDMARKS.map(l=>l.lng)];
-const centerLat = (Math.min(...allLats)+Math.max(...allLats))/2;
-const centerLng = (Math.min(...allLngs)+Math.max(...allLngs))/2;
+// Build watch zones
+const watchCol=document.getElementById('watch-col');
+const iLabel={high:'High Traffic',med:'Moderate',ems:'EMS / Response'};
+const iStyle={
+  high:'background:#2d1f06;color:#fde68a;border-color:#78350f',
+  med: 'background:#1f1506;color:#fdba74;border-color:#431407',
+  ems: 'background:#062020;color:#67e8f9;border-color:#0e7490'
+};
+WATCHES.forEach(w=>{
+  const d=document.createElement('div');
+  d.className='watch-item';
+  d.innerHTML=`
+    <div class="watch-dot" style="background:${w.color};box-shadow:0 0 5px ${w.color}66;"></div>
+    <div class="watch-body">
+      <div class="watch-name">${w.emoji} ${w.name}</div>
+      <div class="watch-sub">${w.sub}</div>
+    </div>
+    <div class="watch-badge" style="${iStyle[w.intensity]}">${iLabel[w.intensity]}</div>`;
+  watchCol.appendChild(d);
+});
 
-const map = L.map('map',{zoomControl:true,attributionControl:false})
-  .setView([centerLat, centerLng], 15);
+// MAP
+const allPts=[...STOPS.map(s=>[s.lat,s.lng]),...WATCHES.map(w=>[w.lat,w.lng])];
+const map=L.map('map',{zoomControl:true,attributionControl:false}).setView([44.6648,-74.9960],15);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:19}).addTo(map);
 
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
-  subdomains:'abcd', maxZoom:19
-}).addTo(map);
+// Watch zone circles — drawn first (bottom layer)
+WATCHES.forEach(w=>{
+  // soft outer halo
+  L.circle([w.lat,w.lng],{radius:w.zR*2.2,color:w.color,weight:0,fillColor:w.color,fillOpacity:0.035}).addTo(map);
+  // dashed ring
+  L.circle([w.lat,w.lng],{radius:w.zR,color:w.color,weight:1.2,dashArray:'4 7',fillColor:w.color,fillOpacity:0.07,opacity:0.5}).addTo(map);
+});
 
-// ── STOP MARKERS ──
-function makeIcon(s, active){
-  const sz = active ? 40 : 32;
-  const bg = active ? s.color : '#252a3a';
-  const bdr = active ? '#fff' : '#374151';
+// Bar stop zone circles
+const stopCircles={};
+STOPS.forEach(s=>{
+  L.circle([s.lat,s.lng],{radius:s.zR*1.8,color:s.color,weight:0,fillColor:s.color,fillOpacity:0.05}).addTo(map);
+  stopCircles[s.id]=L.circle([s.lat,s.lng],{radius:s.zR,color:s.color,weight:1.5,fillColor:s.color,fillOpacity:0.10,opacity:0.55}).addTo(map);
+});
+
+// Crawl order route — subtle
+const routePts=STOPS.map(s=>[s.lat,s.lng]);
+L.polyline(routePts,{color:'#ffffff',weight:1,dashArray:'2 9',opacity:.18}).addTo(map);
+
+// Stop markers
+function makeStopIcon(s,active){
+  const sz=active?38:30,bg=active?s.color:'#14182a',bdr=active?'#fff':'#2a3050';
+  const glow=active?`box-shadow:0 0 16px ${s.color}88;`:'';
   return L.divIcon({
-    html:`<div style="width:${sz}px;height:${sz}px;border-radius:50%;background:${bg};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:${active?14:12}px;border:2.5px solid ${bdr};box-shadow:0 2px 10px rgba(0,0,0,.6);">${s.id}</div>`,
-    className:'', iconSize:[sz,sz], iconAnchor:[sz/2,sz/2]
+    html:`<div style="width:${sz}px;height:${sz}px;border-radius:50%;background:${bg};display:flex;align-items:center;justify-content:center;color:#fff;font-family:system-ui;font-weight:800;font-size:${active?13:11}px;border:2px solid ${bdr};${glow}">${s.id}</div>`,
+    className:'',iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]
   });
 }
-
-const markerMap = {};
-STOPS.forEach(s => {
-  markerMap[s.id] = L.marker([s.lat, s.lng], {icon: makeIcon(s, false)})
-    .addTo(map)
-    .bindPopup(`<b>${s.id} · ${s.name}</b><br>
-      <span style="color:#93c5fd;font-size:11px;">${s.addr} · ${fmtHM(s.start)}–${fmtHM(s.end)}</span><br>
-      <span style="color:#9ca3af;font-size:11px;">${s.note}</span>`);
+const markerMap={};
+STOPS.forEach(s=>{
+  markerMap[s.id]=L.marker([s.lat,s.lng],{icon:makeStopIcon(s,false),zIndexOffset:200}).addTo(map)
+    .bindPopup(`<b>${s.id} · ${s.name}</b><br><span style="color:#93c5fd">${s.addr}</span><br><span style="color:#6b7280">${fmtHM(s.start)} – ${fmtHM(s.end)}</span><br><span style="color:#fde68a">${s.deals}</span>`);
 });
 
-// ── CRAWL ROUTE LINE (exact coords in order) ──
-const routeCoords = STOPS.map(s => [s.lat, s.lng]);
-// Glow layer behind
-L.polyline(routeCoords, {color:'#7dd3fc', weight:12, opacity:.12}).addTo(map);
-// Main route
-L.polyline(routeCoords, {color:'#38bdf8', weight:2.5, dashArray:'6 5', opacity:.75}).addTo(map);
-
-// ── CAMPUS LANDMARK MARKERS ──
-LANDMARKS.forEach(lm => {
-  const icon = L.divIcon({
-    html: `<div style="display:flex;flex-direction:column;align-items:center;pointer-events:none;">
-      <div style="font-size:20px;line-height:1;filter:drop-shadow(0 1px 4px rgba(0,0,0,.9));">${lm.emoji}</div>
-      <div style="background:rgba(10,14,28,.85);border:1px solid #2a3a5a;border-radius:4px;padding:2px 6px;margin-top:2px;white-space:nowrap;text-align:center;">
-        <div style="font-size:10px;font-weight:700;color:#e0e8ff;line-height:1.3;">${lm.label}</div>
-        ${lm.sub ? `<div style="font-size:9px;color:#6b7fa0;line-height:1.2;">${lm.sub}</div>` : ''}
-      </div>
-    </div>`,
-    className:'', iconSize:[90,52], iconAnchor:[45,10]
+// Watch markers (emoji + label)
+WATCHES.forEach(w=>{
+  const icon=L.divIcon({
+    html:`<div style="display:flex;flex-direction:column;align-items:center;gap:2px;pointer-events:none;">
+      <div style="font-size:15px;line-height:1;filter:drop-shadow(0 1px 3px rgba(0,0,0,.9));">${w.emoji}</div>
+      <div style="background:rgba(8,10,16,.9);border:1px solid ${w.color}40;border-radius:3px;padding:2px 5px;white-space:nowrap;">
+        <div style="font-size:9px;font-weight:700;color:${w.color};line-height:1.4;">${w.name}</div>
+      </div></div>`,
+    className:'',iconSize:[110,40],iconAnchor:[55,8]
   });
-  L.marker([lm.lat, lm.lng], {icon}).addTo(map).bindPopup(lm.popup);
+  L.marker([w.lat,w.lng],{icon,zIndexOffset:100}).addTo(map).bindPopup(w.popup);
 });
 
-// ── FOOT TRAFFIC HEAT ROUTES (based on real street geometry) ──
-// Campus core → Maple St (main artery from Cheel/Walker area to Eben's)
-// Students walk east on Clarkson Ave then south down Maple St
-const campusToEbens = [
-  [44.664515, -75.001517],   // Cheel Arena / Golden Knight
-  [44.663001, -74.998398],   // Campus Safety / EMS (waypoint on path)
-  [44.6651,   -74.9988],     // Maple St & campus edge
-  [44.6662,   -75.0005],     // Maple St heading toward bars
-  [44.6675885,-75.0012585],  // Eben's Hearth ← STOP 01
-];
-L.polyline(campusToEbens, {color:'#ef4444', weight:16, opacity:.10}).addTo(map); // glow
-L.polyline(campusToEbens, {color:'#ef4444', weight:6,  opacity:.55}).addTo(map); // line
-
-// Walker Arena → toward downtown (secondary campus route)
-const walkerToDowntown = [
-  [44.665989, -74.991449],   // Walker Arena
-  [44.6665,   -74.9920],     // heading west on campus
-  [44.6665,   -74.9940],     // toward Maple St
-  [44.6675885,-75.0012585],  // Eben's Hearth ← STOP 01
-];
-L.polyline(walkerToDowntown, {color:'#f97316', weight:12, opacity:.10}).addTo(map);
-L.polyline(walkerToDowntown, {color:'#f97316', weight:4,  opacity:.50}).addTo(map);
-
-// Eben's → Raymond St (Cantina) — students heading into downtown core
-const ebensToRaymond = [
-  [44.6675885,-75.0012585],  // Eben's Hearth ← STOP 01
-  [44.6680,   -74.9980],     // east on Maple
-  [44.6685,   -74.9950],     // continuing east
-  [44.6690,   -74.9920],     // toward Raymond St
-  [44.6696393,-74.9882468],  // Cantina ← STOP 02
-];
-L.polyline(ebensToRaymond, {color:'#eab308', weight:12, opacity:.10}).addTo(map);
-L.polyline(ebensToRaymond, {color:'#eab308', weight:4,  opacity:.50}).addTo(map);
-
-// Raymond St → Market St cluster (Maxfields + McDuff's + Circuit)
-const raymondToMarket = [
-  [44.6696393,-74.9882468],  // Cantina ← STOP 02
-  [44.6692,   -74.9878],     // south on Raymond
-  [44.6688,   -74.9875],     // approaching Market St
-  [44.6687557,-74.9871997],  // Maxfields ← STOP 03
-  [44.6704855,-74.9872280],  // McDuff's ← STOP 04
-  [44.6701962,-74.9861513],  // Circuit ← STOP 05
-];
-L.polyline(raymondToMarket, {color:'#ef4444', weight:14, opacity:.10}).addTo(map);
-L.polyline(raymondToMarket, {color:'#ef4444', weight:5,  opacity:.55}).addTo(map);
-
-// ── FOOT TRAFFIC LEGEND ──
-const legend = L.control({position:'bottomright'});
-legend.onAdd = () => {
-  const d = L.DomUtil.create('div');
-  d.style.cssText = 'background:rgba(10,14,28,.9);border:1px solid #2a3a5a;border-radius:6px;padding:8px 12px;font-size:11px;color:#e0e8ff;line-height:1.9;';
-  d.innerHTML = `
-    <div style="font-weight:700;margin-bottom:4px;font-size:10px;letter-spacing:.5px;color:#6b7fa0;text-transform:uppercase;">Foot Traffic</div>
-    <div><span style="display:inline-block;width:24px;height:4px;background:#ef4444;border-radius:2px;vertical-align:middle;margin-right:6px;"></span>Very High</div>
-    <div><span style="display:inline-block;width:24px;height:4px;background:#f97316;border-radius:2px;vertical-align:middle;margin-right:6px;"></span>High</div>
-    <div><span style="display:inline-block;width:24px;height:4px;background:#eab308;border-radius:2px;vertical-align:middle;margin-right:6px;"></span>Moderate</div>
-    <div style="margin-top:6px;padding-top:6px;border-top:1px solid #2a3a5a;">
-    <span style="display:inline-block;width:24px;height:2px;background:#38bdf8;border-radius:2px;vertical-align:middle;margin-right:6px;border-top: 2px dashed #38bdf8;background:none;"></span>Crawl route</div>
-  `;
+// Map legend
+const legend=L.control({position:'bottomright'});
+legend.onAdd=()=>{
+  const d=L.DomUtil.create('div');
+  d.style.cssText='background:rgba(8,10,16,.93);border:1px solid #1e2840;border-radius:5px;padding:9px 12px;font-family:\'DM Mono\',monospace;font-size:10px;color:#c8d0e8;line-height:1.9;';
+  d.innerHTML=`
+    <div style="font-size:8px;letter-spacing:1.2px;text-transform:uppercase;color:#3a4060;margin-bottom:5px;">Legend</div>
+    <div style="display:flex;align-items:center;gap:7px;"><div style="width:13px;height:13px;border-radius:50%;background:#22c55e18;border:1.5px dashed #22c55e70;flex-shrink:0;"></div>Bar stop zone</div>
+    <div style="display:flex;align-items:center;gap:7px;"><div style="width:13px;height:13px;border-radius:50%;background:#f59e0b18;border:1.5px dashed #f59e0b70;flex-shrink:0;"></div>High traffic watch</div>
+    <div style="display:flex;align-items:center;gap:7px;"><div style="width:13px;height:13px;border-radius:50%;background:#22d3ee18;border:1.5px dashed #22d3ee70;flex-shrink:0;"></div>EMS / Campus Safety</div>`;
   return d;
 };
 legend.addTo(map);
+map.fitBounds(allPts,{padding:[44,44]});
 
-// Fit map to all points
-map.fitBounds(
-  [...STOPS.map(s=>[s.lat,s.lng]), ...LANDMARKS.map(l=>[l.lat,l.lng])],
-  {padding:[40,40]}
-);
-
-// ── TIMELINE ──
-const tl = document.getElementById('tl-track');
-STOPS.forEach(s => {
-  const seg = document.createElement('div');
-  seg.className = 'tl-seg'; seg.id = `tl-${s.id}`;
-  seg.style.left  = pct(toM(s.start))+'%';
-  seg.style.width = (pct(toM(s.end))-pct(toM(s.start)))+'%';
-  seg.style.background = s.color+'99';
-  seg.innerHTML = `<span>${s.name.split(' ')[0]}</span>`;
+// Timeline
+const tl=document.getElementById('tl-track');
+STOPS.forEach(s=>{
+  const seg=document.createElement('div');
+  seg.className='tl-seg'; seg.id=`tl-${s.id}`;
+  seg.style.left=pct(toM(s.start))+'%';
+  seg.style.width=(pct(toM(s.end))-pct(toM(s.start)))+'%';
+  seg.style.background=s.color+'50';
+  seg.style.borderTop=`1.5px solid ${s.color}88`;
+  seg.innerHTML=`<span>${s.id}</span>`;
   tl.appendChild(seg);
 });
-const nowLine = document.createElement('div'); nowLine.className='tl-now-line';
-const nowLbl  = document.createElement('div'); nowLbl.className='tl-now-label';
+const nowLine=document.createElement('div'); nowLine.className='tl-now-line';
+const nowLbl=document.createElement('div');  nowLbl.className='tl-now-label';
 tl.appendChild(nowLine); tl.appendChild(nowLbl);
 
-// ── TICK ──
+// Tick
 function tick(){
-  const now = new Date();
-  let h=now.getHours(), m=now.getMinutes();
-  const ap = h>=12?'PM':'AM';
+  const now=new Date();
+  let h=now.getHours(),m=now.getMinutes();
+  const ap=h>=12?'PM':'AM';
   if(h>12)h-=12; else if(h===0)h=12;
-  document.getElementById('clock').textContent = `${h}:${String(m).padStart(2,'0')} ${ap}`;
+  document.getElementById('clock').textContent=`${h}:${String(m).padStart(2,'0')} ${ap}`;
 
-  const callout = document.getElementById('map-callout');
-  callout.innerHTML = '';
+  const callout=document.getElementById('map-callout');
+  callout.innerHTML='';
 
-  STOPS.forEach(s => {
-    const el  = document.getElementById(`stop-${s.id}`);
-    const act = isActive(s), past = isPast(s);
-    el.classList.toggle('active', act);
-    el.classList.toggle('past',   past && !act);
-    document.getElementById(`pf-${s.id}`).style.width = progPct(s)+'%';
-    markerMap[s.id].setIcon(makeIcon(s, act));
-
+  STOPS.forEach(s=>{
+    const el=document.getElementById(`stop-${s.id}`);
+    const act=isActive(s),past=isPast(s);
+    el.classList.toggle('active',act);
+    el.classList.toggle('past',past&&!act);
+    document.getElementById(`pf-${s.id}`).style.width=progPct(s)+'%';
+    markerMap[s.id].setIcon(makeStopIcon(s,act));
+    // Active stop zone pulses slightly
+    if(stopCircles[s.id]){
+      stopCircles[s.id].setStyle({fillOpacity:act?0.18:0.10,opacity:act?0.8:0.55,weight:act?2:1.5});
+    }
     if(act){
-      const chip = document.createElement('div');
-      chip.className = 'callout-chip';
-      chip.innerHTML = `<div class="cc-name" style="color:${s.color}">● ${s.id} · ${s.name}</div><div class="cc-sub">${s.addr} · Until ${fmtHM(s.end)} · ${s.deals}</div>`;
+      const chip=document.createElement('div');
+      chip.className='callout-chip';
+      chip.innerHTML=`<div class="cc-name" style="color:${s.color}">● ${s.id} · ${s.name}</div><div class="cc-sub">${s.addr} · Until ${fmtHM(s.end)}</div>`;
       callout.appendChild(chip);
     }
   });
 
-  // Now-line on timeline
-  const cp = pct(nowM());
-  nowLine.style.left = cp+'%';
-  nowLbl.style.left  = cp+'%';
-  let hh = now.getHours();
-  const ap2 = hh>=12?'PM':'AM';
+  const cp=pct(nowM());
+  nowLine.style.left=cp+'%'; nowLbl.style.left=cp+'%';
+  let hh=now.getHours(); const ap2=hh>=12?'PM':'AM';
   if(hh>12)hh-=12; else if(hh===0)hh=12;
-  nowLbl.textContent = `${hh}:${String(now.getMinutes()).padStart(2,'0')} ${ap2}`;
+  nowLbl.textContent=`${hh}:${String(now.getMinutes()).padStart(2,'0')} ${ap2}`;
 
-  // Active segments glow on timeline
-  STOPS.forEach(s => {
-    const seg = document.getElementById(`tl-${s.id}`);
-    seg.style.background  = isActive(s) ? s.color : s.color+'66';
-    seg.style.boxShadow   = isActive(s) ? `0 0 8px ${s.color}88` : 'none';
+  STOPS.forEach(s=>{
+    const seg=document.getElementById(`tl-${s.id}`);
+    const act=isActive(s);
+    seg.style.background=act?s.color+'80':s.color+'44';
+    seg.style.borderTop=`1.5px solid ${act?s.color:s.color+'66'}`;
+    seg.style.boxShadow=act?`0 0 6px ${s.color}66`:'none';
   });
 }
 
-setInterval(tick, 1000);
+setInterval(tick,1000);
 tick();
 </script>
 </body>
